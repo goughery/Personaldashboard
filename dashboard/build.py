@@ -107,7 +107,7 @@ def build_live():
         for m in g.search(CFG["events"]["email_query"], 25) + g.search("from:do317.com newer_than:30d", 25):
             if excluded(m, "events"):
                 continue
-            out["events"].append({"title": m["subject"], "date": email_event_date(m), "time": "",
+            out["events"].append({"id": m["id"], "addr": m["from_addr"], "title": m["subject"], "date": email_event_date(m), "time": "",
                                   "venue": m["from_name"], "url": m["link"], "source": "Email",
                                   **{k: v for k, v in brief(m, g, rich=True).items() if k in ("body", "html")}})
     for key in ("support", "cascade"):
@@ -134,6 +134,8 @@ def build_live():
     rs, note = sources.restaurants(CFG)
     out["restaurants"] = rs
     if note: out["notes"].append(f"Restaurant feeds: {note}")
+    out["events"] = [e for e in out["events"] if e.get("addr") or "venue:" + (e.get("venue") or "").lower() not in BLOCKED]
+    out["restaurants"] = [r for r in out["restaurants"] if "src:" + (r.get("source") or "").lower() not in BLOCKED]
     today = dt.date.today().isoformat()
     horizon = (dt.date.today() + dt.timedelta(days=30 * CFG["events"]["months_ahead"])).isoformat()
     out["events"] = sorted((e for e in out["events"] if not e["date"] or today <= e["date"] <= horizon),
