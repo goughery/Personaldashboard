@@ -112,5 +112,10 @@
     "events": [
       "nextdoor"
     ]
+  },
+  "calendar": {
+    "account": "personal",
+    "days_ahead": 245,
+    "exclude_calendars": []
   }
 }

@@ -27,3 +27,14 @@ each device after the first unlock.
 Scoring (`dashboard/scoring.py`): + replies to threads you sent, + people you've emailed in 90 days, + VIPs/family,
 + unread; − promotions, bulk (List-Unsubscribe), no-reply senders.
 Preview locally: `python -m dashboard.build --demo` then open `site/index.html`.
+
+## Calendar, filters and "read" (added)
+- **Calendar:** needs the Gmail token for the personal account to also have the `calendar.readonly` scope, and the
+  *Google Calendar API* enabled in the same Google Cloud project. Re-create `GMAIL_REFRESH_PERSONAL` in the OAuth Playground
+  with both scopes (`.../auth/gmail.readonly` and `.../auth/calendar.readonly`). Blue = on your calendar;
+  dashed amber = "potential" (Ticketmaster concerts + email events). Potential events have an "Add to Google Calendar" link.
+- **Filter mode / read checkboxes / hidden senders** work immediately and are remembered on that device. To make them permanent
+  and shared across devices: GitHub → Settings → Developer settings → Fine-grained tokens → this repo only, permission
+  *Contents: Read and write*. Paste it under **⚙ Sync** on the page (once per device). Changes are committed to `state.json`
+  (pushes that touch only that file don't trigger a rebuild) and the daily build also honors them. If the repo is public,
+  `state.json` (filtered sender addresses) is visible to anyone.

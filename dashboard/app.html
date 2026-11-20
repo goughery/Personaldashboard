@@ -1,42 +1,216 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>My Dashboard</title>
 <style>
-:root{--bg:#f4f5f8;--card:#fff;--fg:#1a1d24;--mut:#6b7280;--acc:#2f6fed;--bd:#e5e7eb;--tag:#eef2ff}
-@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#171a21;--fg:#e8eaf0;--mut:#9aa3b2;--acc:#6ea0ff;--bd:#272b35;--tag:#222a44}}
+:root{--bg:#f4f5f8;--card:#fff;--fg:#1a1d24;--mut:#6b7280;--acc:#2f6fed;--bd:#e5e7eb;--tag:#eef2ff;--pot:#c77700;--potbg:#fff4de}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#171a21;--fg:#e8eaf0;--mut:#9aa3b2;--acc:#6ea0ff;--bd:#272b35;--tag:#222a44;--pot:#f0b24a;--potbg:#3a2d12}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,sans-serif}
-header{padding:20px 16px 4px;max-width:1200px;margin:auto}h1{margin:0;font-size:1.5rem}header p{margin:2px 0;color:var(--mut)}
+header{padding:20px 16px 4px;max-width:1200px;margin:auto;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:end;justify-content:space-between}
+h1{margin:0;font-size:1.5rem}header p{margin:2px 0;color:var(--mut)}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn,.sw{font:inherit;font-size:.85rem;background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:99px;padding:6px 12px;cursor:pointer}
+.sw input{margin-right:6px}body.fmode .sw{border-color:var(--acc);color:var(--acc)}
 main{max-width:1200px;margin:auto;padding:8px 16px 40px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
-section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px 16px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;min-width:0}
 h2{margin:0 0 8px;font-size:1.05rem}h3{margin:12px 0 4px;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
 ul{list-style:none;margin:0;padding:0}li{padding:8px 0;border-top:1px solid var(--bd)}li:first-child{border-top:0}
 a{color:var(--acc);text-decoration:none;font-weight:500}a:hover{text-decoration:underline}
 .m{color:var(--mut);font-size:.85rem}.t{display:inline-block;background:var(--tag);color:var(--acc);border-radius:99px;padding:0 8px;font-size:.72rem;margin-right:4px}
-.d{font-variant-numeric:tabular-nums;color:var(--mut);font-size:.85rem}summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:none}summary b{color:var(--acc);font-weight:500}
-details[open] summary b{font-weight:700}.body{white-space:pre-wrap;word-break:break-word;margin:8px 0;padding:10px;background:var(--bg);border-radius:8px;font-size:.88rem;max-height:60vh;overflow:auto}
+.d{font-variant-numeric:tabular-nums;color:var(--mut);font-size:.85rem}.wide{grid-column:1/-1}.empty{color:var(--mut)}
+summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:none}summary b{color:var(--acc);font-weight:500}
+details[open] summary b{font-weight:700}
+.body{white-space:pre-wrap;word-break:break-word;margin:8px 0;padding:10px;background:var(--bg);border-radius:8px;font-size:.88rem;max-height:60vh;overflow:auto}
 .mailframe{width:100%;height:70vh;border:1px solid var(--bd);border-radius:8px;margin:8px 0;background:#fff}
-.wide{grid-column:1/-1}.empty{color:var(--mut)}
+/* rows: read checkbox + content + filter button */
+.row{display:flex;gap:10px;align-items:flex-start}.grow{flex:1;min-width:0}
+.rd{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--acc);cursor:pointer}
+.blk{display:none;flex:none;font:inherit;font-size:.8rem;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:8px;padding:4px 8px;cursor:pointer}
+body.fmode .blk{display:block}
+/* calendar */
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:.8rem;color:var(--mut);margin:4px 0 10px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--acc);margin-right:4px}.dot.p{background:transparent;border:2px dashed var(--pot)}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.nav b{font-size:1rem}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}.dow{font-size:.7rem;text-align:center;color:var(--mut);padding:2px 0}
+.day{min-height:52px;border:1px solid var(--bd);border-radius:8px;padding:3px 4px;cursor:pointer;background:var(--card);font-size:.78rem;overflow:hidden}
+.day.out{opacity:.35}.day.today{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}.day.sel{background:var(--tag)}
+.day .n{font-variant-numeric:tabular-nums}.dots{display:flex;flex-wrap:wrap;gap:2px;margin-top:2px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--acc)}.dots i.p{background:transparent;border:1.5px dashed var(--pot)}
+.chip{display:none}
+@media(min-width:700px){.day{min-height:84px}.dots{display:none}.chip{display:block;font-size:.68rem;line-height:1.25;margin-top:2px;padding:1px 4px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--acc);color:#fff}
+.chip.p{background:var(--potbg);color:var(--pot);border:1px dashed var(--pot)}.more{font-size:.68rem;color:var(--mut)}}
+.ev{border-left:4px solid var(--acc);padding:4px 10px;margin:6px 0;border-radius:4px;background:var(--bg)}
+.ev.p{border-left:4px dashed var(--pot);background:var(--potbg)}.ev .tag{font-size:.7rem;color:var(--pot);font-weight:600;margin-left:4px}
+dialog{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:14px;max-width:min(92vw,480px);width:100%}
+dialog::backdrop{background:rgba(0,0,0,.5)}input[type=text],input[type=password]{width:100%;font:inherit;padding:10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--fg)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#222;color:#fff;border-radius:10px;padding:10px 14px;font-size:.88rem;display:none;gap:12px;align-items:center;z-index:9;max-width:92vw}
+#toast button{background:none;border:0;color:#8db4ff;font:inherit;cursor:pointer;text-decoration:underline}
 </style></head><body>
-<header><h1 id="hi"></h1><p id="gen"></p></header><main id="m"></main>
+<header><div><h1 id="hi"></h1><p id="gen"></p></div>
+<div class="tools"><label class="sw"><input type="checkbox" id="fm">Filter mode</label>
+<button class="btn" id="hid">Hidden (0)</button><button class="btn" id="cfg">⚙ Sync</button></div></header>
+<main id="m"></main>
+<div id="toast"></div>
+<dialog id="dHid"><h2>Hidden senders</h2><div id="hidList"></div><h3>Marked read</h3><p class="m" id="readInfo"></p>
+<p><button class="btn" id="clearRead">Restore all read items</button> <button class="btn" onclick="dHid.close()">Close</button></p></dialog>
+<dialog id="dCfg"><h2>Sync across devices</h2>
+<p class="m">Filters and "read" marks are saved on this device. To make them permanent and shared between devices, paste a GitHub fine-grained token
+(one repository only: this one, permission <b>Contents: Read and write</b>). It's stored only in this browser. Changes are saved to <code>state.json</code> in the repo
+and the daily build also applies them.</p>
+<input type="password" id="tok" placeholder="github_pat_…" autocomplete="off"><p class="m" id="syncStat"></p>
+<p><button class="btn" id="saveTok">Save</button> <button class="btn" id="rmTok">Remove token</button> <button class="btn" onclick="dCfg.close()">Close</button></p></dialog>
 <script>
-const D=/*DATA*/null;const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const safe=u=>/^https?:|^#/.test(u)?u:"#";
+const D=/*DATA*/null;
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const safe=u=>/^https?:|^#/.test(u||"")?u:"#";
+const $=id=>document.getElementById(id);
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+
+/* ---------- persistent state: blocked senders + read items ---------- */
+const norm=s=>({blocked:(s&&s.blocked)||[],read:(s&&s.read)||{}});
+let S=(()=>{try{const l=JSON.parse(ls.get("dstate"));if(l)return norm(l)}catch(e){}return norm(D.state)})();
+const FREE=/^@(gmail|googlemail|yahoo|outlook|hotmail|live|icloud|me|aol|proton|protonmail)\./;
+const isBlocked=(addr)=>{addr=(addr||"").toLowerCase();const dom="@"+addr.split("@").pop();return S.blocked.some(b=>b.a===addr||b.a===dom)};
+const hidden=i=>i.id&&S.read[i.id]||isBlocked(i.addr);
+const saveLocal=()=>ls.set("dstate",JSON.stringify(S));
+const token=()=>ls.get("dtoken"),repo=D.repo,API=repo?`https://api.github.com/repos/${repo}/contents/state.json`:"";
+let sha=null,sync=token()?"…":"local only",chain=Promise.resolve();
+const ghh=()=>({Authorization:"Bearer "+token(),Accept:"application/vnd.github+json"});
+const b64e=s=>btoa(unescape(encodeURIComponent(s))),b64d=s=>decodeURIComponent(escape(atob(s.replace(/\s/g,""))));
+function setSync(x){sync=x;$("syncStat").textContent="Status: "+x}
+async function pull(){
+  if(!token()||!repo)return;
+  try{const r=await fetch(API+"?ref=main",{headers:ghh(),cache:"no-store"});
+    if(r.status===404){sha=null;setSync("synced");return}
+    if(!r.ok)throw new Error(r.status);
+    const j=await r.json();sha=j.sha;S=norm(JSON.parse(b64d(j.content)));saveLocal();setSync("synced")}
+  catch(e){setSync("sync error ("+e.message+") — token or repo access?")}
+}
+async function put(){
+  const pruned={};const cut=Date.now()-60*864e5;for(const[k,v]of Object.entries(S.read))if(v>cut)pruned[k]=v;S.read=pruned;
+  const r=await fetch(API,{method:"PUT",headers:ghh(),body:JSON.stringify({message:"Update dashboard state",branch:"main",
+    content:b64e(JSON.stringify(S,null,1)+"\n"),...(sha?{sha}:{})})});
+  if(r.status===409||r.status===422)return false;
+  if(!r.ok)throw new Error(r.status);
+  sha=(await r.json()).content.sha;return true;
+}
+function mutate(fn){fn(S);saveLocal();
+  if(token()&&repo)chain=chain.then(async()=>{try{setSync("saving…");
+    if(!await put()){await pull();fn(S);saveLocal();if(!await put())throw new Error("conflict");rerenderAll()}
+    setSync("synced")}catch(e){setSync("sync error ("+e.message+")")}});
+  updateHid()}
+const blockFn=(addr,name)=>s=>{if(!s.blocked.some(b=>b.a===addr))s.blocked.push({a:addr,n:name,t:Date.now()})};
+const unblockFn=addr=>s=>{s.blocked=s.blocked.filter(b=>b.a!==addr)};
+const readFn=(id,on)=>s=>{if(on)s.read[id]=Date.now();else delete s.read[id]};
+
+/* ---------- rendering helpers ---------- */
 const link=(t,u)=>`<a href="${esc(safe(u))}" target="_blank" rel="noopener">${esc(t)}</a>`;
 const tags=i=>(i.why||[]).map(w=>`<span class="t">${esc(w)}</span>`).join("");
 const frame=h=>`<iframe class="mailframe" sandbox="allow-popups allow-popups-to-escape-sandbox" csp="default-src 'none'; img-src https: data:; style-src 'unsafe-inline'; font-src https: data:" referrerpolicy="no-referrer" srcdoc="${esc('<base target="_blank"><style>body{margin:0;padding:8px;background:#fff;color:#111;font-family:system-ui,sans-serif;word-break:break-word}img{max-width:100%;height:auto}</style>'+h)}"></iframe>`;
 const det=(sum,body,url,h)=>`<details><summary>${sum}</summary>${h?frame(h):`<div class="body">${esc(body||"(no text)")}</div>`}<div class="m"><a href="${esc(safe(url))}" target="_blank" rel="noopener">Open in Gmail ↗</a></div></details>`;
-const mail=i=>`<li>${det(`<b>${esc(i.title)}</b><div class="m">${esc(i.from)}${i.snippet?" — "+esc(i.snippet):""}</div>${tags(i)}`,i.body,i.url,i.html)}</li>`;
-const list=(a,f,e="Nothing new")=>a&&a.length?`<ul>${a.map(f).join("")}</ul>`:`<p class="empty">${e}</p>`;
-const sec=(t,b,c="")=>`<section class="${c}"><h2>${t}</h2>${b}</section>`;
+const row=(i,inner)=>i.id?`<li class="row" data-id="${esc(i.id)}" data-addr="${esc(i.addr)}"><input type="checkbox" class="rd" aria-label="Mark as read"><div class="grow">${inner}</div><button class="blk" data-name="${esc(i.from)}" title="Always hide this sender">🚫 Filter</button></li>`:`<li>${inner}</li>`;
+const mail=i=>row(i,det(`<b>${esc(i.title)}</b><div class="m">${esc(i.from)}${i.snippet?" — "+esc(i.snippet):""}</div>${tags(i)}`,i.body,i.url,i.html));
+const list=(a,f,e="Nothing new")=>{a=(a||[]).filter(x=>!hidden(x));return a.length?`<ul>${a.map(f).join("")}</ul>`:`<p class="empty">${e}</p>`};
+const sec=(t,b,c="",id="")=>`<section class="${c}" ${id?`id="${id}"`:""}><h2>${t}</h2>${b}</section>`;
+const fmt=e=>e.date?new Date(e.date+"T12:00").toLocaleDateString([], {month:"short",day:"numeric",year:"numeric"}):"TBD";
+
+function rerenderAll(){
+  const B=D.briefing||{};let o="";
+  o+=sec("📅 Calendar",'<div id="calBody"></div>',"wide");
+  o+=sec("☀️ Briefing",`<h3>Morning Brew</h3>${list(B.morning_brew,mail,"Not arrived yet")}<h3>Baby development</h3>${list(B.baby,mail)}<h3>Do317</h3>${list(B.do317,mail)}`);
+  o+=sec("✅ To-do — important mail",list(D.todos,mail,"Inbox looks clear"));
+  o+=sec("🏢 Business",Object.values(D.business||{}).map(b=>`<h3>${esc(b.label)}</h3>${list(b.items,mail,"Nothing important")}`).join("")||'<p class="empty">No business accounts connected</p>');
+  o+=sec("🎵 Events — next 8 months",list(D.events,e=>{const meta=`<div class="m"><span class="d">${fmt(e)}</span> · ${esc(e.venue)} <span class="t">${esc(e.source)}</span></div>`;return e.body?row(e,det(`<b>${esc(e.title)}</b>${meta}`,e.body,e.url,e.html)):`<li>${link(e.title,e.url)}${meta}</li>`},"No events found"),"wide");
+  o+=sec("🍽️ New & interesting restaurants",list(D.restaurants,r=>`<li>${link(r.title,r.url)}<div class="m">${esc(r.summary)} <span class="t">${esc(r.source)}</span></div></li>`,"No restaurant news"),"wide");
+  if(D.notes&&D.notes.length)o+=sec("Notes",`<p class="m">${D.notes.map(esc).join("<br>")}</p>`,"wide");
+  $("m").innerHTML=o;renderCal();updateHid();
+}
+
+/* ---------- calendar ---------- */
+let showPot=true,cm=new Date(new Date().getFullYear(),new Date().getMonth(),1),selDay=null;
+const pad=n=>String(n).padStart(2,"0"),dkey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+function calEvents(){
+  const real=(D.calendar||[]).map(e=>({...e,pot:false}));
+  const pot=showPot?(D.events||[]).filter(e=>e.date).map(e=>({title:e.title,start:e.time?e.date+"T"+e.time:e.date,end:null,allDay:!e.time,cal:e.venue||e.source,url:e.url,loc:e.venue||"",pot:true})):[];
+  return real.concat(pot);
+}
+function dayMap(evs){
+  const mp={};const add=(k,e)=>(mp[k]=mp[k]||[]).push(e);
+  for(const e of evs){
+    if(e.allDay){let d=new Date(e.start+"T12:00"),end=e.end?new Date(e.end+"T12:00"):null;
+      if(!end||end<=d)add(dkey(d),e);else for(;d<end;d.setDate(d.getDate()+1))add(dkey(d),e)}
+    else add(dkey(new Date(e.start)),e);
+  }
+  for(const k in mp)mp[k].sort((a,b)=>(a.allDay?0:1)-(b.allDay?0:1)||String(a.start).localeCompare(String(b.start)));
+  return mp;
+}
+const tm=e=>e.allDay?"All day":new Date(e.start).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+function addUrl(e){
+  const f=d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;let dates;
+  if(e.allDay){const d=new Date(e.start+"T12:00"),n=new Date(d);n.setDate(n.getDate()+1);dates=f(d)+"/"+f(n)}
+  else{const d=new Date(e.start),n=new Date(d.getTime()+3*36e5),t=x=>f(x)+"T"+pad(x.getHours())+pad(x.getMinutes())+"00";dates=t(d)+"/"+t(n)}
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(e.title)+"&dates="+dates+"&location="+encodeURIComponent(e.loc||"")+"&details="+encodeURIComponent(e.url||"");
+}
+function renderCal(){
+  const host=$("calBody");if(!host)return;
+  const evs=calEvents(),mp=dayMap(evs),today=dkey(new Date());selDay=selDay||today;
+  const first=new Date(cm),start=new Date(first);start.setDate(1-first.getDay());
+  const lastOk=new Date(new Date().getFullYear(),new Date().getMonth()+9,1),prevOk=cm>new Date(new Date().getFullYear(),new Date().getMonth(),1);
+  let cells="";for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=dkey(d),es=mp[k]||[];
+    if(i>=35&&d.getMonth()!==cm.getMonth())break;
+    const dots=es.slice(0,8).map(e=>`<i class="${e.pot?"p":""}"></i>`).join("");
+    const chips=es.slice(0,2).map(e=>`<div class="chip ${e.pot?"p":""}">${esc(e.title)}</div>`).join("")+(es.length>2?`<div class="more">+${es.length-2} more</div>`:"");
+    cells+=`<div class="day${d.getMonth()!==cm.getMonth()?" out":""}${k===today?" today":""}${k===selDay?" sel":""}" data-k="${k}"><span class="n">${d.getDate()}</span><div class="dots">${dots}</div>${chips}</div>`}
+  const sel=mp[selDay]||[];
+  const detail=sel.length?sel.map(e=>`<div class="ev ${e.pot?"p":""}"><b>${esc(e.title)}</b>${e.pot?'<span class="tag">POTENTIAL</span>':""}<div class="m">${tm(e)}${e.cal?" · "+esc(e.cal):""}${e.loc&&e.loc!==e.cal?" · "+esc(e.loc):""}</div><div class="m">${e.url&&e.url!=="#"?link(e.pot?"Tickets / info ↗":"Open in Calendar ↗",e.url):""}${e.pot?` · <a href="${esc(addUrl(e))}" target="_blank" rel="noopener">+ Add to Google Calendar</a>`:""}</div></div>`).join(""):'<p class="empty">Nothing on this day</p>';
+  const dl=new Date(selDay+"T12:00").toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"});
+  const nowIso=new Date();const up=(D.calendar||[]).filter(e=>new Date(e.allDay?e.end+"T00:00":e.end||e.start)>=nowIso).slice(0,6);
+  host.innerHTML=`<div class="legend"><span><i class="dot"></i>On your calendar</span><span><i class="dot p"></i>Potential (concerts &amp; email events)</span><label><input type="checkbox" id="potT" ${showPot?"checked":""}> Show potential</label></div>
+  <div class="nav"><button class="btn" id="pm" ${prevOk?"":"disabled"}>‹</button><b>${cm.toLocaleDateString([], {month:"long",year:"numeric"})}</b><button class="btn" id="nm" ${cm<lastOk&&new Date(cm.getFullYear(),cm.getMonth()+1,1)<lastOk?"":"disabled"}>›</button></div>
+  <div class="grid">${["S","M","T","W","T","F","S"].map(x=>`<div class="dow">${x}</div>`).join("")}${cells}</div>
+  <h3>${esc(dl)}</h3>${detail}
+  ${(D.calendar||[]).length?"":'<p class="m">No Google Calendar events loaded. See the notes below if the calendar permission is missing.</p>'}`;
+}
+
+/* ---------- hidden panel ---------- */
+function updateHid(){
+  $("hid").textContent=`Hidden (${S.blocked.length})`;
+  $("hidList").innerHTML=S.blocked.length?"<ul>"+S.blocked.map(b=>`<li class="row"><div class="grow"><b>${esc(b.n||b.a)}</b><div class="m">${esc(b.a)}</div></div><button class="btn" data-un="${esc(b.a)}">Restore</button></li>`).join("")+"</ul>":'<p class="empty">No filtered senders</p>';
+  $("readInfo").textContent=`${Object.keys(S.read).length} item(s) marked read (auto-cleared after 60 days).`;
+}
+
+/* ---------- toast ---------- */
+let tt;function toast(html,ms=7000){const t=$("toast");t.innerHTML=html;t.style.display="flex";clearTimeout(tt);tt=setTimeout(()=>t.style.display="none",ms)}
+function emptyIfNone(ul){if(ul&&!ul.querySelector("li")){const p=document.createElement("p");p.className="empty";p.textContent="All clear ✓";ul.replaceWith(p)}}
+
+/* ---------- events ---------- */
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("rd")){const li=e.target.closest("li"),id=li.dataset.id;mutate(readFn(id,true));const ul=li.closest("ul");
+    li.style.transition="opacity .25s";li.style.opacity=0;setTimeout(()=>{li.remove();emptyIfNone(ul)},250);
+    toast(`Marked read <button id="undo">Undo</button>`);$("undo").onclick=()=>{mutate(readFn(id,false));rerenderAll();$("toast").style.display="none"}}
+  if(e.target.id==="potT"){showPot=e.target.checked;renderCal()}
+  if(e.target.id==="fm")document.body.classList.toggle("fmode",e.target.checked);
+});
+document.addEventListener("click",e=>{
+  const b=e.target.closest(".blk");
+  if(b){const li=b.closest("li"),addr=li.dataset.addr,name=b.dataset.name;mutate(blockFn(addr,name));
+    document.querySelectorAll("li.row").forEach(x=>{if(x.dataset.addr===addr){const ul=x.closest("ul");x.remove();emptyIfNone(ul)}});
+    const dom="@"+addr.split("@").pop();const canDom=!FREE.test(dom+".");
+    toast(`Filtered ${esc(name||addr)} <button id="undo">Undo</button>${canDom?` <button id="dom">Block all of ${esc(dom)}</button>`:""}`);
+    $("undo").onclick=()=>{mutate(unblockFn(addr));rerenderAll();$("toast").style.display="none"};
+    if(canDom)$("dom").onclick=()=>{mutate(blockFn(dom,"Everyone at "+dom));rerenderAll();toast("Blocked "+esc(dom),3000)}}
+  const un=e.target.closest("[data-un]");if(un){mutate(unblockFn(un.dataset.un));rerenderAll()}
+  const day=e.target.closest(".day");if(day){selDay=day.dataset.k;renderCal()}
+  if(e.target.id==="pm"||e.target.id==="nm"){cm=new Date(cm.getFullYear(),cm.getMonth()+(e.target.id==="nm"?1:-1),1);
+    const n=new Date();selDay=(cm.getFullYear()===n.getFullYear()&&cm.getMonth()===n.getMonth())?dkey(n):dkey(cm);renderCal()}
+});
+$("hid").onclick=()=>{updateHid();$("dHid").showModal()};
+$("clearRead").onclick=()=>{mutate(s=>{s.read={}});rerenderAll()};
+$("cfg").onclick=()=>{$("tok").value="";setSync(token()?sync:"not connected (changes stay on this device)");$("dCfg").showModal()};
+$("saveTok").onclick=async()=>{const v=$("tok").value.trim();if(!v)return;ls.set("dtoken",v);setSync("connecting…");await pull();rerenderAll()};
+$("rmTok").onclick=()=>{ls.del("dtoken");setSync("not connected (changes stay on this device)")};
+
 const h=new Date().getHours();
-hi.textContent=(h<12?"Good morning":h<18?"Good afternoon":"Good evening")+", Jeff";
-gen.textContent="Updated "+new Date(D.generated*1000).toLocaleString([], {dateStyle:"medium",timeStyle:"short"});
-const B=D.briefing||{},fmt=e=>e.date?new Date(e.date+"T12:00").toLocaleDateString([], {month:"short",day:"numeric",year:"numeric"}):"TBD";
-let o="";
-o+=sec("☀️ Briefing",`<h3>Morning Brew</h3>${list(B.morning_brew,mail,"Not arrived yet")}<h3>Baby development</h3>${list(B.baby,mail)}<h3>Do317</h3>${list(B.do317,mail)}`);
-o+=sec("✅ To-do — important mail",list(D.todos,mail,"Inbox looks clear"));
-o+=sec("🏢 Business",Object.values(D.business||{}).map(b=>`<h3>${esc(b.label)}</h3>${list(b.items,mail,"Nothing important")}`).join("")||'<p class="empty">No business accounts connected</p>');
-o+=sec("🎵 Events — next 8 months",list(D.events,e=>{const meta=`<div class="m"><span class="d">${fmt(e)}</span> · ${esc(e.venue)} <span class="t">${esc(e.source)}</span></div>`;return e.body?`<li>${det(`<b>${esc(e.title)}</b>${meta}`,e.body,e.url,e.html)}</li>`:`<li>${link(e.title,e.url)}${meta}</li>`},"No events found"),"wide");
-o+=sec("🍽️ New & interesting restaurants",list(D.restaurants,r=>`<li>${link(r.title,r.url)}<div class="m">${esc(r.summary)} <span class="t">${esc(r.source)}</span></div></li>`,"No restaurant news"),"wide");
-if(D.notes&&D.notes.length)o+=sec("Notes",`<p class="m">${D.notes.map(esc).join("<br>")}</p>`,"wide");
-m.innerHTML=o;
+$("hi").textContent=(h<12?"Good morning":h<18?"Good afternoon":"Good evening")+", Jeff";
+$("gen").textContent="Updated "+new Date(D.generated*1000).toLocaleString([], {dateStyle:"medium",timeStyle:"short"});
+rerenderAll();
+if(token())pull().then(rerenderAll);
 </script></body></html>

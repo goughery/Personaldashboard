@@ -6,6 +6,20 @@ CFG = json.load(open(os.path.join(os.path.dirname(__file__), "..", "config.json"
 DATE_RX = re.compile(r"\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+(\d{1,2})(?:,?\s+(\d{4}))?", re.I)
 
 
+STATE_PATH = os.path.join(os.path.dirname(__file__), "..", "state.json")
+try:
+    STATE = json.load(open(STATE_PATH))
+except Exception:
+    STATE = {}
+STATE.setdefault("blocked", []); STATE.setdefault("read", {})
+BLOCKED = {x["a"].lower() for x in STATE["blocked"]}
+
+
+def is_blocked(m):
+    dom = "@" + m["from_addr"].split("@")[-1]
+    return m["from_addr"] in BLOCKED or dom in BLOCKED or m["id"] in STATE["read"]
+
+
 def brief(m, g=None, rich=False):
     """rich=True also keeps the original HTML (newsletters), shown in a sandboxed frame."""
     body, htm = "", ""
@@ -14,7 +28,8 @@ def brief(m, g=None, rich=False):
             body, htm = g.body(m["id"])
         except Exception as ex:
             body = f"(could not load message: {ex})"
-    out = {"title": html.unescape(m["subject"]), "from": m["from_name"], "url": m["link"],
+    out = {"id": m["id"], "addr": m["from_addr"],
+           "title": html.unescape(m["subject"]), "from": m["from_name"], "url": m["link"],
            "snippet": html.unescape(m["snippet"])[:160], "ts": m["ts"], "body": body}
     if rich and htm:
         out["html"] = htm
@@ -22,6 +37,8 @@ def brief(m, g=None, rich=False):
 
 
 def excluded(m, *groups):
+    if is_blocked(m):
+        return True
     text = f'{m["from_name"]} {m["from_addr"]} {m["subject"]}'.lower()
     terms = list(CFG["exclude"]["all"])
     for gname in groups:
@@ -57,7 +74,16 @@ def build_live():
         accts[key] = (Gmail(tok, a["gmail_index"]), os.environ.get(a["address_env"], "").lower())
     me = {addr for _, addr in accts.values() if addr}
     out = {"generated": time.time(), "briefing": {}, "events": [], "restaurants": [],
-           "todos": [], "business": {}, "notes": []}
+           "todos": [], "business": {}, "notes": [], "calendar": [], "state": STATE,
+           "repo": os.environ.get("GITHUB_REPOSITORY", "")}
+    cal_key = CFG["calendar"]["account"]
+    if cal_key in accts:
+        try:
+            from .gmail import calendar_events
+            out["calendar"] = calendar_events(accts[cal_key][0], CFG["calendar"]["days_ahead"],
+                                              CFG["calendar"]["exclude_calendars"])
+        except Exception as ex:
+            out["notes"].append(f"Calendar unavailable ({ex}). Re-create the Gmail token with the calendar.readonly scope and enable the Google Calendar API.")
 
     def ctx_for(g):
         sent = g.search("in:sent newer_than:90d", limit=150)
@@ -117,8 +143,13 @@ def build_live():
 
 def build_demo():
     now = time.time(); d = dt.date.today()
-    b = lambda t, f, s="": {"title": t, "from": f, "url": "#", "snippet": s, "ts": now - 3600, "body": "Full message text appears here when you expand an item.\n\nSecond paragraph."}
-    return {"generated": now, "notes": ["Demo data"],
+    b = lambda t, f, s="": {"id": "id" + str(abs(hash(t))), "addr": f.lower().replace(" ", "") + "@example.com", "title": t, "from": f, "url": "#", "snippet": s, "ts": now - 3600, "body": "Full message text appears here when you expand an item.\n\nSecond paragraph."}
+    iso = lambda n: (d + dt.timedelta(days=n)).isoformat()
+    cal = [{"title": "Dentist", "start": iso(1) + "T09:00:00-05:00", "end": iso(1) + "T10:00:00-05:00", "allDay": False, "cal": "Personal", "url": "#", "loc": ""},
+           {"title": "Heather's birthday", "start": iso(5), "end": iso(6), "allDay": True, "cal": "Family", "url": "#", "loc": ""},
+           {"title": "Offsite", "start": iso(12), "end": iso(15), "allDay": True, "cal": "Work", "url": "#", "loc": "Chicago"}]
+    return {"generated": now, "notes": ["Demo data"], "calendar": cal, "repo": "demo/demo",
+            "state": {"blocked": [], "read": {}},
             "briefing": {"morning_brew": [dict(b("☕ Today's Morning Brew", "Morning Brew", "Markets, tech and more"), html="<h2>Happy Friday</h2><p>Real <a href=\"https://example.com\">newsletter</a> layout.</p><script>alert(1)</script>")],
                          "baby": [b("Your baby this week: fingernails and hiccups", "BabyCenter")],
                          "do317": [b("This Weekend in Indy", "Do317", "Concerts, markets, brunch")]},

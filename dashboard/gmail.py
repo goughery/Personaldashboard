@@ -2,6 +2,7 @@
 import base64, html, os, re, time
 from email.utils import parseaddr, parsedate_to_datetime
 import requests
+from urllib.parse import quote
 
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 API = "https://gmail.googleapis.com/gmail/v1/users/me"
@@ -93,3 +94,47 @@ def html_to_text(h):
     h = html.unescape(html.unescape(h))
     h = re.sub(r"https?://\S{60,}", "[link]", h)
     return h
+
+
+CAL = "https://www.googleapis.com/calendar/v3"
+
+
+def calendar_events(gm, days=245, exclude=()):
+    """All events from the account's visible calendars, today .. +days. Needs calendar.readonly scope."""
+    import datetime as dt
+    now = dt.datetime.now(dt.timezone.utc)
+    tmin = (now - dt.timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    tmax = (now + dt.timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def cget(path, **params):
+        r = gm.s.get(f"{CAL}/{path}", headers=gm._auth(), params=params, timeout=30)
+        r.raise_for_status()
+        return r.json()
+
+    out = []
+    for c in cget("users/me/calendarList").get("items", []):
+        name = c.get("summaryOverride") or c.get("summary", "")
+        if c.get("hidden") or c.get("selected") is False:
+            continue
+        if any(x.lower() in name.lower() for x in exclude):
+            continue
+        token = None
+        while True:
+            p = {"timeMin": tmin, "timeMax": tmax, "singleEvents": "true",
+                 "orderBy": "startTime", "maxResults": 250}
+            if token:
+                p["pageToken"] = token
+            j = cget(f"calendars/{quote(c['id'], safe='')}/events", **p)
+            for e in j.get("items", []):
+                if e.get("status") == "cancelled":
+                    continue
+                s, en = e.get("start", {}), e.get("end", {})
+                out.append({"title": e.get("summary", "(busy)"),
+                            "start": s.get("dateTime") or s.get("date"),
+                            "end": en.get("dateTime") or en.get("date"),
+                            "allDay": "date" in s, "cal": name,
+                            "url": e.get("htmlLink", ""), "loc": e.get("location", "")})
+            token = j.get("nextPageToken")
+            if not token:
+                break
+    return out

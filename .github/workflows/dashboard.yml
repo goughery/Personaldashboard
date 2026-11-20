@@ -2,6 +2,7 @@ name: Build dashboard
 on:
   push:
     branches: [main]
+    paths-ignore: [state.json]
   schedule:
     - cron: "30 10 * * *"   # ~5:30am Indianapolis (EST); 6:30am in summer
   workflow_dispatch:
