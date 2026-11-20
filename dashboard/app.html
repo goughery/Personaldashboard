@@ -119,10 +119,10 @@ const fmt=e=>e.date?new Date(e.date+"T12:00").toLocaleDateString([], {month:"sho
 
 function rerenderAll(){
   const B=D.briefing||{};let o="";
+  o+=sec("✅ To-do — important mail",list(D.todos,mail,"Inbox looks clear"),"wide");
+  o+=sec("🏢 Business",Object.values(D.business||{}).map(b=>`<h3>${esc(b.label)}</h3>${list(b.items,mail,"Nothing important")}`).join("")||'<p class="empty">No business accounts connected</p>',"wide");
+  o+=sec("☀️ Briefing",`<h3>Morning Brew</h3>${list(B.morning_brew,mail,"Not arrived yet")}<h3>Baby development</h3>${list(B.baby,mail)}<h3>Do317</h3>${list(B.do317,mail)}`,"wide");
   o+=sec("📅 Calendar",'<div id="calBody"></div>',"wide");
-  o+=sec("☀️ Briefing",`<h3>Morning Brew</h3>${list(B.morning_brew,mail,"Not arrived yet")}<h3>Baby development</h3>${list(B.baby,mail)}<h3>Do317</h3>${list(B.do317,mail)}`);
-  o+=sec("✅ To-do — important mail",list(D.todos,mail,"Inbox looks clear"));
-  o+=sec("🏢 Business",Object.values(D.business||{}).map(b=>`<h3>${esc(b.label)}</h3>${list(b.items,mail,"Nothing important")}`).join("")||'<p class="empty">No business accounts connected</p>');
   o+=sec("🎵 Events — next 8 months",list(D.events,e=>{const meta=`<div class="m"><span class="d">${fmt(e)}</span> · ${esc(e.venue)} <span class="t">${esc(e.source)}</span></div>`;return row(e,e.body?det(`<b>${esc(e.title)}</b>${meta}`,e.body,e.url,e.html):`${link(e.title,e.url)}${meta}`)},"No events found"),"wide");
   o+=sec("🍽️ New & interesting restaurants",list(D.restaurants,r=>row(r,`${link(r.title,r.url)}<div class="m">${esc(r.summary)} <span class="t">${esc(r.source)}</span></div>`),"No restaurant news"),"wide");
   if(D.notes&&D.notes.length)o+=sec("Notes",`<p class="m">${D.notes.map(esc).join("<br>")}</p>`,"wide");
