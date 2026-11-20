@@ -105,14 +105,12 @@
     "all": [
       "big brothers big sisters",
       "bigbrothersbigsisters",
-      "bbbs"
+      "bbbs",
+      "f5bot",
+      "f5 bot"
     ],
     "events": [
       "nextdoor"
-    ],
-    "support": [
-      "f5bot",
-      "f5 bot"
     ]
   }
 }
