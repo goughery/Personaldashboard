@@ -1,5 +1,5 @@
 """Minimal read-only Gmail API client using a refresh token."""
-import os, time
+import base64, html, os, re, time
 from email.utils import parseaddr, parsedate_to_datetime
 import requests
 
@@ -59,3 +59,27 @@ class Gmail:
             "snippet": j.get("snippet", ""), "ts": ts, "bulk": "list-unsubscribe" in h,
             "link": f"https://mail.google.com/mail/u/{self.index}/#all/{j['id']}",
         }
+
+    def body(self, mid, limit=6000):
+        """Plain-text body of a message (HTML stripped if no text part)."""
+        j = self._get(f"messages/{mid}", format="full")
+        plain, htm = [], []
+        def walk(p):
+            data = p.get("body", {}).get("data")
+            mt = p.get("mimeType", "")
+            if data and mt in ("text/plain", "text/html"):
+                t = base64.urlsafe_b64decode(data + "=" * (-len(data) % 4)).decode("utf-8", "replace")
+                (plain if mt == "text/plain" else htm).append(t)
+            for q in p.get("parts", []) or []:
+                walk(q)
+        walk(j["payload"])
+        if plain:
+            t = "\n".join(plain)
+        else:
+            t = "\n".join(htm)
+            t = re.sub(r"(?is)<(script|style).*?</\1>", "", t)
+            t = re.sub(r"(?i)<br\s*/?>|</p>|</div>|</tr>|</li>", "\n", t)
+            t = html.unescape(re.sub(r"<[^>]+>", "", t))
+        t = re.sub(r"[ \t\xa0]+", " ", t)
+        t = re.sub(r"\n\s*\n\s*(\n\s*)+", "\n\n", t).strip()
+        return t[:limit] + ("…" if len(t) > limit else "")

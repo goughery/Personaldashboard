@@ -6,9 +6,23 @@ CFG = json.load(open(os.path.join(os.path.dirname(__file__), "..", "config.json"
 DATE_RX = re.compile(r"\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+(\d{1,2})(?:,?\s+(\d{4}))?", re.I)
 
 
-def brief(m):
+def brief(m, g=None):
+    body = ""
+    if g is not None:
+        try:
+            body = g.body(m["id"])
+        except Exception as ex:
+            body = f"(could not load message: {ex})"
     return {"title": m["subject"], "from": m["from_name"], "url": m["link"],
-            "snippet": m["snippet"][:160], "ts": m["ts"]}
+            "snippet": m["snippet"][:160], "ts": m["ts"], "body": body}
+
+
+def excluded(m, *groups):
+    text = f'{m["from_name"]} {m["from_addr"]} {m["subject"]}'.lower()
+    terms = list(CFG["exclude"]["all"])
+    for gname in groups:
+        terms += CFG["exclude"].get(gname, [])
+    return any(t in text for t in terms)
 
 
 def email_event_date(m):
@@ -49,18 +63,23 @@ def build_live():
     if "personal" in accts:
         g = accts["personal"][0]
         for k, q in CFG["briefing"].items():
-            out["briefing"][k] = [brief(m) for m in g.search(q, 5)]
+            out["briefing"][k] = [brief(m, g) for m in g.search(q, 8) if not excluded(m)][:5]
         ctx = ctx_for(g)
         scored = []
         for m in g.search("in:inbox newer_than:14d", limit=100):
+            if excluded(m):
+                continue
             s, why = scoring.score(m, ctx, CFG)
             if s >= CFG["scoring"]["todo_min_score"]:
                 scored.append((s, m, why))
         scored.sort(key=lambda t: (-t[0], -t[1]["ts"]))
-        out["todos"] = [dict(brief(m), score=s, why=why) for s, m, why in scored[:CFG["scoring"]["max_items"]]]
+        out["todos"] = [dict(brief(m, g), score=s, why=why) for s, m, why in scored[:CFG["scoring"]["max_items"]]]
         for m in g.search(CFG["events"]["email_query"], 25) + g.search("from:do317.com newer_than:30d", 25):
+            if excluded(m, "events"):
+                continue
             out["events"].append({"title": m["subject"], "date": email_event_date(m), "time": "",
-                                  "venue": m["from_name"], "url": m["link"], "source": "Email"})
+                                  "venue": m["from_name"], "url": m["link"], "source": "Email",
+                                  "body": brief(m, g)["body"]})
     for key in ("support", "cascade"):
         if key not in accts:
             continue
@@ -68,12 +87,14 @@ def build_live():
         ctx = ctx_for(g)
         scored = []
         for m in g.search("in:inbox newer_than:14d", limit=100):
+            if excluded(m, key):
+                continue
             s, why = scoring.score(m, ctx, CFG, business=True)
             if s >= CFG["scoring"]["business_min_score"]:
                 scored.append((s, m, why))
         scored.sort(key=lambda t: (-t[0], -t[1]["ts"]))
         out["business"][key] = {"label": CFG["accounts"][key]["label"],
-                                "items": [dict(brief(m), score=s, why=why) for s, m, why in scored[:CFG["scoring"]["max_items"]]]}
+                                "items": [dict(brief(m, g), score=s, why=why) for s, m, why in scored[:CFG["scoring"]["max_items"]]]}
     try:
         ev, note = sources.concerts(CFG)
         out["events"] += ev
@@ -92,7 +113,7 @@ def build_live():
 
 def build_demo():
     now = time.time(); d = dt.date.today()
-    b = lambda t, f, s="": {"title": t, "from": f, "url": "#", "snippet": s, "ts": now - 3600}
+    b = lambda t, f, s="": {"title": t, "from": f, "url": "#", "snippet": s, "ts": now - 3600, "body": "Full message text appears here when you expand an item.\n\nSecond paragraph."}
     return {"generated": now, "notes": ["Demo data"],
             "briefing": {"morning_brew": [b("☕ Today's Morning Brew", "Morning Brew", "Markets, tech and more")],
                          "baby": [b("Your baby this week: fingernails and hiccups", "BabyCenter")],
