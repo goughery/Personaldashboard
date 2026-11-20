@@ -60,8 +60,8 @@ class Gmail:
             "link": f"https://mail.google.com/mail/u/{self.index}/#all/{j['id']}",
         }
 
-    def body(self, mid, limit=6000):
-        """Plain-text body of a message (HTML stripped if no text part)."""
+    def body(self, mid, limit=6000, html_cap=150_000):
+        """Return (clean_text, html_or_empty). Prefers the HTML part: many newsletters ship a junk plain part."""
         j = self._get(f"messages/{mid}", format="full")
         plain, htm = [], []
         def walk(p):
@@ -73,13 +73,23 @@ class Gmail:
             for q in p.get("parts", []) or []:
                 walk(q)
         walk(j["payload"])
-        if plain:
-            t = "\n".join(plain)
+        raw_html = "\n".join(htm)
+        if raw_html:
+            t = html_to_text(raw_html)
         else:
-            t = "\n".join(htm)
-            t = re.sub(r"(?is)<(script|style).*?</\1>", "", t)
-            t = re.sub(r"(?i)<br\s*/?>|</p>|</div>|</tr>|</li>", "\n", t)
-            t = html.unescape(re.sub(r"<[^>]+>", "", t))
+            t = "\n".join(plain)
         t = re.sub(r"[ \t\xa0]+", " ", t)
-        t = re.sub(r"\n\s*\n\s*(\n\s*)+", "\n\n", t).strip()
-        return t[:limit] + ("…" if len(t) > limit else "")
+        t = re.sub(r"\n[ \t]*(\n[ \t]*)+", "\n\n", t).strip()
+        t = t[:limit] + ("…" if len(t) > limit else "")
+        return t, (raw_html if raw_html and len(raw_html) <= html_cap else "")
+
+
+def html_to_text(h):
+    h = re.sub(r"(?is)<(script|style|head)\b.*?</\1>", "", h)
+    h = re.sub(r"(?is)<img\b[^>]*>", "", h)
+    h = re.sub(r"(?i)<br\s*/?>|</(p|div|tr|li|h\d|table)>", "\n", h)
+    h = re.sub(r"(?i)<li\b[^>]*>", "• ", h)
+    h = re.sub(r"<[^>]+>", "", h)
+    h = html.unescape(html.unescape(h))
+    h = re.sub(r"https?://\S{60,}", "[link]", h)
+    return h

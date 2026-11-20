@@ -1,20 +1,24 @@
 """Collect data -> data.json structure. Usage: python -m dashboard.build [--demo]"""
-import datetime as dt, json, os, re, sys, time
+import datetime as dt, html, json, os, re, sys, time
 from . import scoring, sources
 
 CFG = json.load(open(os.path.join(os.path.dirname(__file__), "..", "config.json")))
 DATE_RX = re.compile(r"\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+(\d{1,2})(?:,?\s+(\d{4}))?", re.I)
 
 
-def brief(m, g=None):
-    body = ""
+def brief(m, g=None, rich=False):
+    """rich=True also keeps the original HTML (newsletters), shown in a sandboxed frame."""
+    body, htm = "", ""
     if g is not None:
         try:
-            body = g.body(m["id"])
+            body, htm = g.body(m["id"])
         except Exception as ex:
             body = f"(could not load message: {ex})"
-    return {"title": m["subject"], "from": m["from_name"], "url": m["link"],
-            "snippet": m["snippet"][:160], "ts": m["ts"], "body": body}
+    out = {"title": html.unescape(m["subject"]), "from": m["from_name"], "url": m["link"],
+           "snippet": html.unescape(m["snippet"])[:160], "ts": m["ts"], "body": body}
+    if rich and htm:
+        out["html"] = htm
+    return out
 
 
 def excluded(m, *groups):
@@ -63,7 +67,7 @@ def build_live():
     if "personal" in accts:
         g = accts["personal"][0]
         for k, q in CFG["briefing"].items():
-            out["briefing"][k] = [brief(m, g) for m in g.search(q, 8) if not excluded(m)][:5]
+            out["briefing"][k] = [brief(m, g, rich=True) for m in g.search(q, 8) if not excluded(m)][:5]
         ctx = ctx_for(g)
         scored = []
         for m in g.search("in:inbox newer_than:14d", limit=100):
@@ -79,7 +83,7 @@ def build_live():
                 continue
             out["events"].append({"title": m["subject"], "date": email_event_date(m), "time": "",
                                   "venue": m["from_name"], "url": m["link"], "source": "Email",
-                                  "body": brief(m, g)["body"]})
+                                  **{k: v for k, v in brief(m, g, rich=True).items() if k in ("body", "html")}})
     for key in ("support", "cascade"):
         if key not in accts:
             continue
@@ -115,7 +119,7 @@ def build_demo():
     now = time.time(); d = dt.date.today()
     b = lambda t, f, s="": {"title": t, "from": f, "url": "#", "snippet": s, "ts": now - 3600, "body": "Full message text appears here when you expand an item.\n\nSecond paragraph."}
     return {"generated": now, "notes": ["Demo data"],
-            "briefing": {"morning_brew": [b("☕ Today's Morning Brew", "Morning Brew", "Markets, tech and more")],
+            "briefing": {"morning_brew": [dict(b("☕ Today's Morning Brew", "Morning Brew", "Markets, tech and more"), html="<h2>Happy Friday</h2><p>Real <a href=\"https://example.com\">newsletter</a> layout.</p><script>alert(1)</script>")],
                          "baby": [b("Your baby this week: fingernails and hiccups", "BabyCenter")],
                          "do317": [b("This Weekend in Indy", "Do317", "Concerts, markets, brunch")]},
             "events": [{"title": "Sample Band Live", "date": (d + dt.timedelta(days=12)).isoformat(), "time": "20:00",
