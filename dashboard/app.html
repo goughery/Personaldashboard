@@ -134,7 +134,7 @@ let showPot=true,cm=new Date(new Date().getFullYear(),new Date().getMonth(),1),s
 const pad=n=>String(n).padStart(2,"0"),dkey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 function calEvents(){
   const real=(D.calendar||[]).map(e=>({...e,pot:false}));
-  const pot=showPot?(D.events||[]).filter(e=>e.date&&!hidden(e)).map(e=>({title:e.title,start:e.time?e.date+"T"+e.time:e.date,end:null,allDay:!e.time,cal:e.venue||e.source,url:e.url,loc:e.venue||"",pot:true})):[];
+  const pot=showPot?(D.events||[]).filter(e=>e.date&&!hidden(e)).map(e=>({id:e.id,bk:e.bk,title:e.title,start:e.time?e.date+"T"+e.time:e.date,end:null,allDay:!e.time,cal:e.venue||e.source,url:e.url,loc:e.venue||"",pot:true})):[];
   return real.concat(pot);
 }
 function dayMap(evs){
@@ -165,7 +165,7 @@ function renderCal(){
     const chips=es.slice(0,2).map(e=>`<div class="chip ${e.pot?"p":""}">${esc(e.title)}</div>`).join("")+(es.length>2?`<div class="more">+${es.length-2} more</div>`:"");
     cells+=`<div class="day${d.getMonth()!==cm.getMonth()?" out":""}${k===today?" today":""}${k===selDay?" sel":""}" data-k="${k}"><span class="n">${d.getDate()}</span><div class="dots">${dots}</div>${chips}</div>`}
   const sel=mp[selDay]||[];
-  const detail=sel.length?sel.map(e=>`<div class="ev ${e.pot?"p":""}"><b>${esc(e.title)}</b>${e.pot?'<span class="tag">POTENTIAL</span>':""}<div class="m">${tm(e)}${e.cal?" · "+esc(e.cal):""}${e.loc&&e.loc!==e.cal?" · "+esc(e.loc):""}</div><div class="m">${e.url&&e.url!=="#"?link(e.pot?"Tickets / info ↗":"Open in Calendar ↗",e.url):""}${e.pot?` · <a href="${esc(addUrl(e))}" target="_blank" rel="noopener">+ Add to Google Calendar</a>`:""}</div></div>`).join(""):'<p class="empty">Nothing on this day</p>';
+  const detail=sel.length?sel.map(e=>`<div class="ev ${e.pot?"p":""}">${e.pot?`<button class="x calx" data-id="${esc(e.id)}" style="float:right" title="Remove" aria-label="Remove">✕</button>`:""}<b>${esc(e.title)}</b>${e.pot?'<span class="tag">POTENTIAL</span>':""}<div class="m">${tm(e)}${e.cal?" · "+esc(e.cal):""}${e.loc&&e.loc!==e.cal?" · "+esc(e.loc):""}</div><div class="m">${e.url&&e.url!=="#"?link(e.pot?"Tickets / info ↗":"Open in Calendar ↗",e.url):""}${e.pot?` · <a href="${esc(addUrl(e))}" target="_blank" rel="noopener">+ Add to Google Calendar</a>`:""}</div></div>`).join(""):'<p class="empty">Nothing on this day</p>';
   const dl=new Date(selDay+"T12:00").toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"});
   const nowIso=new Date();const up=(D.calendar||[]).filter(e=>new Date(e.allDay?e.end+"T00:00":e.end||e.start)>=nowIso).slice(0,6);
   host.innerHTML=`<div class="legend"><span><i class="dot"></i>On your calendar</span><span><i class="dot p"></i>Potential (concerts &amp; email events)</span><label><input type="checkbox" id="potT" ${showPot?"checked":""}> Show potential</label></div>
@@ -204,6 +204,7 @@ function blockToast(bk,name){
 }
 document.addEventListener("click",e=>{
   const xb=e.target.closest(".x");
+  if(xb&&xb.classList.contains("calx")){const id=xb.dataset.id;mutate(readFn(id,true));rerenderAll();toast(`Removed <button id="undo">Undo</button>`);$("undo").onclick=()=>{mutate(readFn(id,false));rerenderAll();$("toast").style.display="none"};return}
   if(xb){const li=xb.closest("li"),id=li.dataset.id,bk=li.dataset.bk,name=li.dataset.name;mutate(readFn(id,true));const ul=li.closest("ul");li.remove();emptyIfNone(ul);
     toast(`Removed <button id="undo">Undo</button> <button id="nvq">Never show from this source…</button>`,9000);
     $("undo").onclick=()=>{mutate(readFn(id,false));rerenderAll();$("toast").style.display="none"};
