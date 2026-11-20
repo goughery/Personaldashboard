@@ -1,0 +1,41 @@
+name: Build dashboard
+on:
+  schedule:
+    - cron: "30 10 * * *"   # ~5:30am Indianapolis (EST); 6:30am in summer
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency: { group: pages, cancel-in-progress: true }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -r requirements.txt
+      - run: python -m dashboard.build
+        env:
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GMAIL_REFRESH_PERSONAL: ${{ secrets.GMAIL_REFRESH_PERSONAL }}
+          GMAIL_REFRESH_SUPPORT: ${{ secrets.GMAIL_REFRESH_SUPPORT }}
+          GMAIL_REFRESH_CASCADE: ${{ secrets.GMAIL_REFRESH_CASCADE }}
+          ADDR_PERSONAL: ${{ secrets.ADDR_PERSONAL }}
+          ADDR_SUPPORT: ${{ secrets.ADDR_SUPPORT }}
+          ADDR_CASCADE: ${{ secrets.ADDR_CASCADE }}
+          TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
+      - name: Refuse to publish unencrypted
+        run: grep -q "AES-GCM" site/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: site }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: "${{ steps.d.outputs.page_url }}" }
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4

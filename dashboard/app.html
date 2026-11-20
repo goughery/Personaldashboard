@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>My Dashboard</title>
+<style>
+:root{--bg:#f4f5f8;--card:#fff;--fg:#1a1d24;--mut:#6b7280;--acc:#2f6fed;--bd:#e5e7eb;--tag:#eef2ff}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#171a21;--fg:#e8eaf0;--mut:#9aa3b2;--acc:#6ea0ff;--bd:#272b35;--tag:#222a44}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,sans-serif}
+header{padding:20px 16px 4px;max-width:1200px;margin:auto}h1{margin:0;font-size:1.5rem}header p{margin:2px 0;color:var(--mut)}
+main{max-width:1200px;margin:auto;padding:8px 16px 40px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px 16px}
+h2{margin:0 0 8px;font-size:1.05rem}h3{margin:12px 0 4px;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+ul{list-style:none;margin:0;padding:0}li{padding:8px 0;border-top:1px solid var(--bd)}li:first-child{border-top:0}
+a{color:var(--acc);text-decoration:none;font-weight:500}a:hover{text-decoration:underline}
+.m{color:var(--mut);font-size:.85rem}.t{display:inline-block;background:var(--tag);color:var(--acc);border-radius:99px;padding:0 8px;font-size:.72rem;margin-right:4px}
+.d{font-variant-numeric:tabular-nums;color:var(--mut);font-size:.85rem}.wide{grid-column:1/-1}.empty{color:var(--mut)}
+</style></head><body>
+<header><h1 id="hi"></h1><p id="gen"></p></header><main id="m"></main>
+<script>
+const D=/*DATA*/null;const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const safe=u=>/^https?:|^#/.test(u)?u:"#";
+const link=(t,u)=>`<a href="${esc(safe(u))}" target="_blank" rel="noopener">${esc(t)}</a>`;
+const mail=i=>`<li>${link(i.title,i.url)}<div class="m">${esc(i.from)}${i.snippet?" — "+esc(i.snippet):""}</div>${(i.why||[]).map(w=>`<span class="t">${esc(w)}</span>`).join("")}</li>`;
+const list=(a,f,e="Nothing new")=>a&&a.length?`<ul>${a.map(f).join("")}</ul>`:`<p class="empty">${e}</p>`;
+const sec=(t,b,c="")=>`<section class="${c}"><h2>${t}</h2>${b}</section>`;
+const h=new Date().getHours();
+hi.textContent=(h<12?"Good morning":h<18?"Good afternoon":"Good evening")+", Jeff";
+gen.textContent="Updated "+new Date(D.generated*1000).toLocaleString([], {dateStyle:"medium",timeStyle:"short"});
+const B=D.briefing||{},fmt=e=>e.date?new Date(e.date+"T12:00").toLocaleDateString([], {month:"short",day:"numeric",year:"numeric"}):"TBD";
+let o="";
+o+=sec("☀️ Briefing",`<h3>Morning Brew</h3>${list(B.morning_brew,mail,"Not arrived yet")}<h3>Baby development</h3>${list(B.baby,mail)}<h3>Do317</h3>${list(B.do317,mail)}`);
+o+=sec("✅ To-do — important mail",list(D.todos,mail,"Inbox looks clear"));
+o+=sec("🏢 Business",Object.values(D.business||{}).map(b=>`<h3>${esc(b.label)}</h3>${list(b.items,mail,"Nothing important")}`).join("")||'<p class="empty">No business accounts connected</p>');
+o+=sec("🎵 Events — next 8 months",list(D.events,e=>`<li>${link(e.title,e.url)}<div class="m"><span class="d">${fmt(e)}</span> · ${esc(e.venue)} <span class="t">${esc(e.source)}</span></div></li>`,"No events found"),"wide");
+o+=sec("🍽️ New & interesting restaurants",list(D.restaurants,r=>`<li>${link(r.title,r.url)}<div class="m">${esc(r.summary)} <span class="t">${esc(r.source)}</span></div></li>`,"No restaurant news"),"wide");
+if(D.notes&&D.notes.length)o+=sec("Notes",`<p class="m">${D.notes.map(esc).join("<br>")}</p>`,"wide");
+m.innerHTML=o;
+</script></body></html>

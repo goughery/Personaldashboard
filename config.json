@@ -1,0 +1,38 @@
+{
+  "timezone": "America/Indiana/Indianapolis",
+  "last_name": "gough",
+  "vips": [
+    {"name": "Heather", "match": "heather"},
+    {"name": "Alex Moore", "match": "alex moore"}
+  ],
+  "accounts": {
+    "personal": {"label": "Personal", "address_env": "ADDR_PERSONAL", "token_env": "GMAIL_REFRESH_PERSONAL", "gmail_index": 0},
+    "support":  {"label": "StatementsToSheets Support", "address_env": "ADDR_SUPPORT", "token_env": "GMAIL_REFRESH_SUPPORT", "gmail_index": 1},
+    "cascade":  {"label": "Cascade Foundry", "address_env": "ADDR_CASCADE", "token_env": "GMAIL_REFRESH_CASCADE", "gmail_index": 2}
+  },
+  "briefing": {
+    "morning_brew": "from:morningbrew.com newer_than:2d",
+    "baby": "(from:babycenter.com OR subject:(\"your baby\" development OR \"weeks pregnant\" OR \"week-by-week\")) newer_than:14d",
+    "do317": "from:do317.com newer_than:7d"
+  },
+  "events": {
+    "months_ahead": 8,
+    "ticketmaster_city": "Indianapolis",
+    "ticketmaster_radius_miles": 30,
+    "email_query": "(tickets OR \"on sale\" OR rsvp OR \"save the date\" OR concert OR festival) newer_than:60d -category:promotions"
+  },
+  "restaurants": {
+    "feeds": [
+      "https://www.indianapolismonthly.com/feed",
+      "https://www.eater.com/rss/index.xml"
+    ],
+    "keywords": ["restaurant", "opening", "opens", "now open", "chef", "brewery", "bakery", "cafe", "menu", "dining", "pizza", "taproom", "bar "],
+    "must_mention": ["indianapolis", "indy", "carmel", "fishers", "broad ripple", "fountain square", "mass ave", "noblesville", "zionsville", "westfield", "greenwood"]
+  },
+  "scoring": {
+    "business_keywords": ["invoice", "payment", "refund", "failed", "cancel", "chargeback", "urgent", "contract", "subscription", "billing", "customer", "bug", "cannot", "not working", "help", "question", "partnership", "proposal"],
+    "todo_min_score": 4,
+    "business_min_score": 3,
+    "max_items": 15
+  }
+}
