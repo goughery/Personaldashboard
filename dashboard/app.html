@@ -8,7 +8,7 @@ header{padding:20px 16px 4px;max-width:1200px;margin:auto;display:flex;flex-wrap
 h1{margin:0;font-size:1.5rem}header p{margin:2px 0;color:var(--mut)}
 .tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .btn,.sw{font:inherit;font-size:.85rem;background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:99px;padding:6px 12px;cursor:pointer}
-.sw input{margin-right:6px}body.fmode .sw{border-color:var(--acc);color:var(--acc)}
+.sw input{margin-right:6px}
 main{max-width:1200px;margin:auto;padding:8px 16px 40px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
 section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;min-width:0}
 h2{margin:0 0 8px;font-size:1.05rem}h3{margin:12px 0 4px;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
@@ -24,8 +24,8 @@ details[open] summary b{font-weight:700}
 .row{display:flex;gap:10px;align-items:flex-start}.grow{flex:1;min-width:0}
 .rd{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--acc);cursor:pointer}
 .x{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--bd);background:var(--card);color:var(--mut);font-size:.9rem;line-height:1;cursor:pointer;padding:0}.x:hover{color:var(--fg);border-color:var(--fg)}
-.blk{display:none;flex:none;font:inherit;font-size:.8rem;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:8px;padding:4px 8px;cursor:pointer}
-body.fmode .blk{display:block}
+.acts{display:flex;gap:6px;align-items:flex-start;flex:none}.lb{display:none}@media(min-width:700px){.lb{display:inline}}
+.blk{display:block;flex:none;font:inherit;font-size:.8rem;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:8px;padding:4px 8px;cursor:pointer}
 /* calendar */
 .legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:.8rem;color:var(--mut);margin:4px 0 10px}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--acc);margin-right:4px}.dot.p{background:transparent;border:2px dashed var(--pot)}
@@ -46,12 +46,11 @@ dialog::backdrop{background:rgba(0,0,0,.5)}input[type=text],input[type=password]
 #toast button{background:none;border:0;color:#8db4ff;font:inherit;cursor:pointer;text-decoration:underline}
 </style></head><body>
 <header><div><h1 id="hi"></h1><p id="gen"></p></div>
-<div class="tools"><label class="sw"><input type="checkbox" id="fm">Filter mode</label>
-<button class="btn" id="hid">Hidden (0)</button><button class="btn" id="cfg">⚙ Sync</button></div></header>
+<div class="tools"><button class="btn" id="hid">Hidden (0)</button><button class="btn" id="cfg">⚙ Sync</button></div></header>
 <main id="m"></main>
 <div id="toast"></div>
-<dialog id="dHid"><h2>Hidden senders</h2><div id="hidList"></div><h3>Marked read</h3><p class="m" id="readInfo"></p>
-<p><button class="btn" id="clearRead">Restore all read items</button> <button class="btn" onclick="dHid.close()">Close</button></p></dialog>
+<dialog id="dHid"><h2>Hidden senders</h2><div id="hidList"></div><h3>Done &amp; removed</h3><p class="m" id="readInfo"></p>
+<p><button class="btn" id="clearRead">Restore all done</button> <button class="btn" id="clearGone">Restore all removed</button> <button class="btn" onclick="dHid.close()">Close</button></p></dialog>
 <dialog id="dCfg"><h2>Sync across devices</h2>
 <p class="m">Filters and "read" marks are saved on this device. To make them permanent and shared between devices, paste a GitHub fine-grained token
 (one repository only: this one, permission <b>Contents: Read and write</b>). It's stored only in this browser. Changes are saved to <code>state.json</code> in the repo
@@ -66,7 +65,7 @@ const $=id=>document.getElementById(id);
 const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
 
 /* ---------- persistent state: blocked senders + read items ---------- */
-const norm=s=>({blocked:(s&&s.blocked)||[],read:(s&&s.read)||{}});
+const norm=s=>({blocked:(s&&s.blocked)||[],read:(s&&s.read)||{},gone:(s&&s.gone)||{}});
 let S=(()=>{try{const l=JSON.parse(ls.get("dstate"));if(l)return norm(l)}catch(e){}return norm(D.state)})();
 const FREE=/^@(gmail|googlemail|yahoo|outlook|hotmail|live|icloud|me|aol|proton|protonmail)\./;
 const isBlocked=(k)=>{k=(k||"").toLowerCase();if(!k)return false;const dom=k.includes("@")?"@"+k.split("@").pop():k;return S.blocked.some(b=>b.a===k||b.a===dom)};
@@ -74,7 +73,7 @@ const hid=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return "x"+(h>
 for(const e of D.events||[]){e.id=e.id||hid(e.title+e.date+e.venue);e.bk=e.addr||("venue:"+(e.venue||e.source||"").toLowerCase());e.nm=e.addr?e.venue:(e.venue||e.source)}
 for(const r of D.restaurants||[]){r.id=hid(r.title+r.url);r.bk="src:"+(r.source||"").toLowerCase();r.nm=r.source}
 const bkOf=i=>i.bk||i.addr||"";
-const hidden=i=>i.id&&S.read[i.id]||isBlocked(bkOf(i));
+const hidden=i=>i.id&&(S.read[i.id]||S.gone[i.id])||isBlocked(bkOf(i));
 const saveLocal=()=>ls.set("dstate",JSON.stringify(S));
 const token=()=>ls.get("dtoken"),repo=D.repo,API=repo?`https://api.github.com/repos/${repo}/contents/state.json`:"";
 let sha=null,sync=token()?"…":"local only",chain=Promise.resolve();
@@ -90,7 +89,7 @@ async function pull(){
   catch(e){setSync("sync error ("+e.message+") — token or repo access?")}
 }
 async function put(){
-  const pruned={};const cut=Date.now()-60*864e5;for(const[k,v]of Object.entries(S.read))if(v>cut)pruned[k]=v;S.read=pruned;
+  const cut=Date.now()-60*864e5;for(const f of["read","gone"]){const p={};for(const[k,v]of Object.entries(S[f]))if(v>cut)p[k]=v;S[f]=p}
   const r=await fetch(API,{method:"PUT",headers:ghh(),body:JSON.stringify({message:"Update dashboard state",branch:"main",
     content:b64e(JSON.stringify(S,null,1)+"\n"),...(sha?{sha}:{})})});
   if(r.status===409||r.status===422)return false;
@@ -105,13 +104,14 @@ function mutate(fn){fn(S);saveLocal();
 const blockFn=(addr,name)=>s=>{if(!s.blocked.some(b=>b.a===addr))s.blocked.push({a:addr,n:name,t:Date.now()})};
 const unblockFn=addr=>s=>{s.blocked=s.blocked.filter(b=>b.a!==addr)};
 const readFn=(id,on)=>s=>{if(on)s.read[id]=Date.now();else delete s.read[id]};
+const goneFn=(id,on)=>s=>{if(on)s.gone[id]=Date.now();else delete s.gone[id]};
 
 /* ---------- rendering helpers ---------- */
 const link=(t,u)=>`<a href="${esc(safe(u))}" target="_blank" rel="noopener">${esc(t)}</a>`;
 const tags=i=>(i.why||[]).map(w=>`<span class="t">${esc(w)}</span>`).join("");
 const frame=h=>`<iframe class="mailframe" sandbox="allow-popups allow-popups-to-escape-sandbox" csp="default-src 'none'; img-src https: data:; style-src 'unsafe-inline'; font-src https: data:" referrerpolicy="no-referrer" srcdoc="${esc('<base target="_blank"><style>body{margin:0;padding:8px;background:#fff;color:#111;font-family:system-ui,sans-serif;word-break:break-word}img{max-width:100%;height:auto}</style>'+h)}"></iframe>`;
 const det=(sum,body,url,h)=>`<details><summary>${sum}</summary>${h?frame(h):`<div class="body">${esc(body||"(no text)")}</div>`}<div class="m"><a href="${esc(safe(url))}" target="_blank" rel="noopener">Open in Gmail ↗</a></div></details>`;
-const row=(i,inner)=>i.id?`<li class="row" data-id="${esc(i.id)}" data-bk="${esc(bkOf(i))}" data-name="${esc(i.nm||i.from||"")}"><input type="checkbox" class="rd" aria-label="Mark as done"><div class="grow">${inner}</div><button class="blk" title="Never show from this source">🚫 Filter</button><button class="x" title="Remove" aria-label="Remove">✕</button></li>`:`<li>${inner}</li>`;
+const row=(i,inner)=>i.id?`<li class="row" data-id="${esc(i.id)}" data-bk="${esc(bkOf(i))}" data-name="${esc(i.nm||i.from||"")}"><input type="checkbox" class="rd" title="Done" aria-label="Mark as done"><div class="grow">${inner}</div><div class="acts"><button class="blk" title="Filter: never show from this sender/source">🚫<span class="lb"> Filter</span></button><button class="x" title="Remove" aria-label="Remove">✕</button></div></li>`:`<li>${inner}</li>`;
 const mail=i=>row(i,det(`<b>${esc(i.title)}</b><div class="m">${esc(i.from)}${i.snippet?" — "+esc(i.snippet):""}</div>${tags(i)}`,i.body,i.url,i.html));
 const list=(a,f,e="Nothing new")=>{a=(a||[]).filter(x=>!hidden(x));return a.length?`<ul>${a.map(f).join("")}</ul>`:`<p class="empty">${e}</p>`};
 const sec=(t,b,c="",id="")=>`<section class="${c}" ${id?`id="${id}"`:""}><h2>${t}</h2>${b}</section>`;
@@ -179,7 +179,7 @@ function renderCal(){
 function updateHid(){
   $("hid").textContent=`Hidden (${S.blocked.length})`;
   $("hidList").innerHTML=S.blocked.length?"<ul>"+S.blocked.map(b=>`<li class="row"><div class="grow"><b>${esc(b.n||b.a)}</b><div class="m">${esc(b.a)}</div></div><button class="btn" data-un="${esc(b.a)}">Restore</button></li>`).join("")+"</ul>":'<p class="empty">No filtered senders</p>';
-  $("readInfo").textContent=`${Object.keys(S.read).length} item(s) marked read (auto-cleared after 60 days).`;
+  $("readInfo").textContent=`${Object.keys(S.read).length} done · ${Object.keys(S.gone).length} removed (auto-cleared after 60 days).`;
 }
 
 /* ---------- toast ---------- */
@@ -190,25 +190,24 @@ function emptyIfNone(ul){if(ul&&!ul.querySelector("li")){const p=document.create
 document.addEventListener("change",e=>{
   if(e.target.classList.contains("rd")){const li=e.target.closest("li"),id=li.dataset.id;mutate(readFn(id,true));const ul=li.closest("ul");
     li.style.transition="opacity .25s";li.style.opacity=0;setTimeout(()=>{li.remove();emptyIfNone(ul)},250);
-    toast(`Marked read <button id="undo">Undo</button>`);$("undo").onclick=()=>{mutate(readFn(id,false));rerenderAll();$("toast").style.display="none"}}
+    toast(`Marked done <button id="undo">Undo</button>`);$("undo").onclick=()=>{mutate(readFn(id,false));rerenderAll();$("toast").style.display="none"}}
   if(e.target.id==="potT"){showPot=e.target.checked;renderCal()}
-  if(e.target.id==="fm")document.body.classList.toggle("fmode",e.target.checked);
 });
 function hideRows(pred){document.querySelectorAll("li.row").forEach(x=>{if(pred(x)){const ul=x.closest("ul");x.remove();emptyIfNone(ul)}})}
 function blockToast(bk,name){
+  mutate(blockFn(bk,name));hideRows(x=>x.dataset.bk===bk);
   const isAddr=bk.includes("@"),dom=isAddr?"@"+bk.split("@").pop():"";const canDom=isAddr&&!FREE.test(dom+".");
   const what=bk.startsWith("venue:")?"events at "+(name||bk.slice(6)):bk.startsWith("src:")?"items from "+(name||bk.slice(4)):(name||bk);
-  toast(`Never show ${esc(what)}? <button id="nv">Yes, always hide</button>${canDom?` <button id="dom">Block all of ${esc(dom)}</button>`:""}`,9000);
-  $("nv").onclick=()=>{mutate(blockFn(bk,name));hideRows(x=>x.dataset.bk===bk);rerenderAll();toast("Hidden — see Hidden (N) to undo",3500)};
+  toast(`Filtered ${esc(what)} <button id="undo">Undo</button>${canDom?` <button id="dom">Block all of ${esc(dom)}</button>`:""}`,9000);
+  $("undo").onclick=()=>{mutate(unblockFn(bk));rerenderAll();$("toast").style.display="none"};
   if(canDom)$("dom").onclick=()=>{mutate(blockFn(dom,"Everyone at "+dom));rerenderAll();toast("Blocked "+esc(dom),3500)};
 }
 document.addEventListener("click",e=>{
   const xb=e.target.closest(".x");
-  if(xb&&xb.classList.contains("calx")){const id=xb.dataset.id;mutate(readFn(id,true));rerenderAll();toast(`Removed <button id="undo">Undo</button>`);$("undo").onclick=()=>{mutate(readFn(id,false));rerenderAll();$("toast").style.display="none"};return}
-  if(xb){const li=xb.closest("li"),id=li.dataset.id,bk=li.dataset.bk,name=li.dataset.name;mutate(readFn(id,true));const ul=li.closest("ul");li.remove();emptyIfNone(ul);
-    toast(`Removed <button id="undo">Undo</button> <button id="nvq">Never show from this source…</button>`,9000);
-    $("undo").onclick=()=>{mutate(readFn(id,false));rerenderAll();$("toast").style.display="none"};
-    $("nvq").onclick=()=>blockToast(bk,name)}
+  if(xb&&xb.classList.contains("calx")){const id=xb.dataset.id;mutate(goneFn(id,true));rerenderAll();toast(`Removed <button id="undo">Undo</button>`);$("undo").onclick=()=>{mutate(goneFn(id,false));rerenderAll();$("toast").style.display="none"};return}
+  if(xb){const li=xb.closest("li"),id=li.dataset.id;mutate(goneFn(id,true));const ul=li.closest("ul");li.remove();emptyIfNone(ul);
+    toast(`Removed <button id="undo">Undo</button>`);
+    $("undo").onclick=()=>{mutate(goneFn(id,false));rerenderAll();$("toast").style.display="none"}}
   const b=e.target.closest(".blk");
   if(b){const li=b.closest("li");blockToast(li.dataset.bk,li.dataset.name)}
   const un=e.target.closest("[data-un]");if(un){mutate(unblockFn(un.dataset.un));rerenderAll()}
@@ -218,6 +217,7 @@ document.addEventListener("click",e=>{
 });
 $("hid").onclick=()=>{updateHid();$("dHid").showModal()};
 $("clearRead").onclick=()=>{mutate(s=>{s.read={}});rerenderAll()};
+$("clearGone").onclick=()=>{mutate(s=>{s.gone={}});rerenderAll()};
 $("cfg").onclick=()=>{$("tok").value="";setSync(token()?sync:"not connected (changes stay on this device)");$("dCfg").showModal()};
 $("saveTok").onclick=async()=>{const v=$("tok").value.trim();if(!v)return;ls.set("dtoken",v);setSync("connecting…");await pull();rerenderAll()};
 $("rmTok").onclick=()=>{ls.del("dtoken");setSync("not connected (changes stay on this device)")};

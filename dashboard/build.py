@@ -11,13 +11,13 @@ try:
     STATE = json.load(open(STATE_PATH))
 except Exception:
     STATE = {}
-STATE.setdefault("blocked", []); STATE.setdefault("read", {})
+STATE.setdefault("blocked", []); STATE.setdefault("read", {}); STATE.setdefault("gone", {})
 BLOCKED = {x["a"].lower() for x in STATE["blocked"]}
 
 
 def is_blocked(m):
     dom = "@" + m["from_addr"].split("@")[-1]
-    return m["from_addr"] in BLOCKED or dom in BLOCKED or m["id"] in STATE["read"]
+    return m["from_addr"] in BLOCKED or dom in BLOCKED or m["id"] in STATE["read"] or m["id"] in STATE["gone"]
 
 
 def brief(m, g=None, rich=False):
