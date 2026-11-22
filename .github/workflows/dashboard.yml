@@ -4,10 +4,10 @@ on:
     branches: [main]
     paths-ignore: [state.json]
   schedule:
-    # 6am Indianapolis year-round: GitHub cron is UTC-only, so fire at both 10:00 and 11:00 UTC
-    # and let the "gate" job let through only the run that lands in the 6am hour local time.
-    - cron: "0 10 * * *"
-    - cron: "0 11 * * *"
+    # Ready just before 6am Indianapolis year-round. GitHub cron is UTC-only, so fire at both 9:45 and 10:45 UTC
+    # and let the "gate" job let through only the run that lands between 5:30 and 6:30 local time.
+    - cron: "45 9 * * *"
+    - cron: "45 10 * * *"
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,8 +23,8 @@ jobs:
       - id: g
         run: |
           if [ "${{ github.event_name }}" != "schedule" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
-          h=$(TZ=America/Indiana/Indianapolis date +%H)
-          if [ "$h" = "06" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; echo "Local hour is $h, skipping"; fi
+          m=$((10#$(TZ=America/Indiana/Indianapolis date +%H) * 60 + 10#$(TZ=America/Indiana/Indianapolis date +%M)))
+          if [ "$m" -ge 330 ] && [ "$m" -lt 390 ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; echo "Local minute-of-day is $m, skipping"; fi
   build:
     needs: gate
     if: needs.gate.outputs.run == 'true'
@@ -46,6 +46,8 @@ jobs:
           ADDR_SUPPORT: ${{ secrets.ADDR_SUPPORT }}
           ADDR_CASCADE: ${{ secrets.ADDR_CASCADE }}
           TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
+          RUNSIGNUP_API_KEY: ${{ secrets.RUNSIGNUP_API_KEY }}
+          RUNSIGNUP_API_SECRET: ${{ secrets.RUNSIGNUP_API_SECRET }}
       - name: Refuse to publish unencrypted
         run: grep -q "AES-GCM" site/index.html
       - uses: actions/upload-pages-artifact@v3
@@ -58,3 +60,12 @@ jobs:
     steps:
       - id: d
         uses: actions/deploy-pages@v4
+  notify:
+    needs: [gate, deploy]
+    if: github.event_name == 'schedule' && needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python dashboard/notify.py
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}

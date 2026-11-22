@@ -120,3 +120,40 @@ def restaurants(cfg):
             items.append(it)
     items.sort(key=lambda x: -x["ts"])
     return items[:c.get("max", 10)], "; ".join(errs) or None
+
+
+def races(cfg):
+    """Local races from RunSignup (needs a free API key+secret). Returns (items, note)."""
+    key, sec = os.environ.get("RUNSIGNUP_API_KEY"), os.environ.get("RUNSIGNUP_API_SECRET")
+    if not key or not sec:
+        return [], "Set RUNSIGNUP_API_KEY and RUNSIGNUP_API_SECRET to list local races."
+    c = cfg["races"]
+    start = dt.date.today()
+    end = start + dt.timedelta(days=30 * c["months_ahead"])
+    out, page = [], 1
+    while page <= 3:
+        r = requests.get("https://runsignup.com/Rest/races", params={
+            "format": "json", "api_key": key, "api_secret": sec, "events": "T", "race_headings": "F",
+            "zipcode": c["zipcode"], "radius": c["radius_miles"], "start_date": start.isoformat(),
+            "end_date": end.isoformat(), "page": page, "results_per_page": 100, "sort": "date ASC"}, timeout=30)
+        r.raise_for_status()
+        rows = r.json().get("races", [])
+        for row in rows:
+            x = row.get("race", row)
+            evs = x.get("events") or []
+            names = [e.get("name", "") for e in evs]
+            if evs and all("virtual" in (e.get("name", "") + e.get("event_type", "")).lower() for e in evs):
+                continue
+            try:
+                d = dt.datetime.strptime(x.get("next_date", ""), "%m/%d/%Y").date().isoformat()
+            except ValueError:
+                continue
+            a = x.get("address", {})
+            out.append({"title": x.get("name", "Race"), "date": d,
+                        "where": ", ".join(p for p in (a.get("city"), a.get("state")) if p),
+                        "events": [n for n in names if n][:5], "url": x.get("url", ""), "source": "RunSignup"})
+        if len(rows) < 100:
+            break
+        page += 1
+    out.sort(key=lambda r: r["date"])
+    return out[:c["max"]], None

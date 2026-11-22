@@ -107,6 +107,7 @@ footer{color:var(--mut);font-size:.78rem;text-align:center;margin-top:22px}
  <section class="card" id="sImp" data-box></section>
  <section class="card" id="sRead" data-box></section>
  <section class="card" id="sEv"></section>
+ <section class="card" id="sRaces"></section>
  <div class="pair"><section class="card verse" id="sVerse"></section><section class="card lead" id="sLead"></section></div>
  <section class="card" id="sNotes" hidden></section>
 </main><footer id="gen"></footer></div>
@@ -139,6 +140,7 @@ const hid=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return "x"+(h>
 const BABY=/baby\s?center|your baby|pregnan|week[- ]by[- ]week/i;
 D.events=(D.events||[]).filter(e=>!BABY.test(e.title+" "+(e.venue||"")));
 for(const e of D.events){e.id=e.id||hid(e.title+e.date+e.venue);e.bk=e.addr||("venue:"+(e.venue||e.source||"").toLowerCase());e.nm=e.addr?e.venue:(e.venue||e.source)}
+for(const r of D.races=D.races||[]){r.id=hid("race"+r.title+r.date);r.bk="race:"+r.title.toLowerCase();r.nm=r.title}
 D.read=D.read||{};for(const k of["world","local","restaurants"])for(const r of D.read[k]||[]){r.id=hid((r.url||"")+r.title);r.bk="src:"+(r.source||"").toLowerCase();r.nm=r.source}
 const bkOf=i=>i.bk||i.addr||"";
 const hidden=i=>i.id&&(S.read[i.id]||S.gone[i.id])||isBlocked(bkOf(i));
@@ -206,7 +208,7 @@ const list=(a,f,e="Nothing new")=>{a=vis(a);return a.length?`<ul>${a.map(f).join
 const head=(ic,t,n,box)=>`<div class="sh"><span class="ic">${ic}</span><h2>${t}</h2>${n==null?"":`<span class="cnt"${box?" data-count":""}>${n}</span>`}</div>`;
 const fmtD=e=>e.date?new Date(e.date+"T12:00"):null;
 
-let evAll=false;
+let evAll=false,racesAll=false;
 function rerenderAll(){
   /* important mail: all three inboxes, non-news */
   const groups=[["Personal",D.todos],...Object.values(D.business||{}).map(b=>[b.label,b.items])];
@@ -229,6 +231,12 @@ function rerenderAll(){
   $("sEv").innerHTML=head("🎶","Events nearby",evs.length)+(shown.length?`<ul>${shown.map(evRow).join("")}</ul>`:'<p class="empty">No events found</p>')+
     (evs.length>10?`<button class="btn morebtn" id="evMore">${evAll?"Show fewer":`Show all ${evs.length}`}</button>`:"")+
     (vis(D.do317).length?`<h3 style="margin-top:20px">From Do317</h3>${list(D.do317,mail)}`:"");
+  /* local races */
+  const rs=vis(D.races),rshown=racesAll?rs:rs.slice(0,5);
+  const raceRow=r=>{const d=new Date(r.date+"T12:00"),chips=(r.events||[]).map(x=>`<span class="t">${esc(x)}</span>`).join("");
+    return row(r,`<div class="evr"><div class="badge"><b>${d.toLocaleDateString([], {month:"short"})}</b><span>${d.getDate()}</span></div><div class="grow">${link(r.title,r.url).replace("<a ",'<a style="font-weight:640;color:var(--fg)" ')}<div class="m">${esc(r.where||"")}</div>${chips}</div></div>`)};
+  $("sRaces").innerHTML=head("🏃","Local races",rs.length)+(rshown.length?`<ul>${rshown.map(raceRow).join("")}</ul>`:'<p class="empty">No races found yet. See the notes below.</p>')+
+    (rs.length>5?`<button class="btn morebtn" id="raceMore">${racesAll?"Show fewer":`Show all ${rs.length}`}</button>`:"");
   if(D.notes&&D.notes.length){$("sNotes").hidden=false;$("sNotes").innerHTML=head("ℹ️","Notes")+`<p class="m">${D.notes.map(esc).join("<br>")}</p>`}
   renderCal();updateHid();
 }
@@ -368,6 +376,7 @@ document.addEventListener("click",e=>{
   if(e.target.id==="pm"||e.target.id==="nm"){cm=new Date(cm.getFullYear(),cm.getMonth()+(e.target.id==="nm"?1:-1),1);
     const n=new Date();selDay=(cm.getFullYear()===n.getFullYear()&&cm.getMonth()===n.getMonth())?dkey(n):dkey(cm);renderCal()}
   if(e.target.id==="evMore"){evAll=!evAll;rerenderAll()}
+  if(e.target.id==="raceMore"){racesAll=!racesAll;rerenderAll()}
   if(e.target.id==="vNext"){vOff++;renderDaily()}
   if(e.target.id==="lNext"){lOff++;renderDaily()}
 });

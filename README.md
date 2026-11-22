@@ -48,3 +48,11 @@ Top to bottom: Weather + 6:45 workout reminder, Calendar, Important mail (all th
   (a feed that fails is skipped and noted at the bottom of the page).
 - Weather is fetched live in the browser from Open-Meteo (no key needed).
 - On Android, email links open the Gmail app (Settings → "Open email links in"). iPhone has no message deep link, so it uses the browser.
+
+## 6am push notification (ntfy) and local races
+- **Notification:** install the free **ntfy** app (Android/iOS), subscribe to a long random topic name of your choosing, and add the same string
+  as the repo secret `NTFY_TOPIC`. The build finishes a bit before 6am and the notification is scheduled on ntfy's server for exactly 6:00
+  Indianapolis time (sent immediately if the run is late). It only contains a generic "out the door by 6:45" nudge, never email or calendar text.
+  Anyone who knows the topic name could read it or post to it, so keep it secret.
+- **Races:** needs a free RunSignup API key and secret (runsignup.com → your account → API / Partner tools). Add them as secrets
+  `RUNSIGNUP_API_KEY` and `RUNSIGNUP_API_SECRET`. Zip code, radius and months are under `races` in `config.json`.

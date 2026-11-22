@@ -66,7 +66,7 @@ def email_event_date(m):
 def base_out():
     content = json.load(open(os.path.join(os.path.dirname(__file__), "content.json")))
     return {"generated": time.time(), "events": [], "todos": [], "business": {}, "do317": [], "notes": [],
-            "calendar": [], "state": STATE, "repo": os.environ.get("GITHUB_REPOSITORY", ""),
+            "calendar": [], "races": [], "state": STATE, "repo": os.environ.get("GITHUB_REPOSITORY", ""),
             "weather": CFG["weather"], "workout": CFG["workout"], "content": content}
 
 
@@ -151,6 +151,12 @@ def build_live():
     rs, note = sources.restaurants(CFG)
     out["read"]["restaurants"] = rs
     if note: out["notes"].append(f"Restaurant feeds: {note}")
+    try:
+        out["races"], note = sources.races(CFG)
+        if note: out["notes"].append(note)
+    except Exception as ex:
+        out["notes"].append(f"Races failed: {ex}")
+    out["races"] = [r for r in out["races"] if "race:" + r["title"].lower() not in BLOCKED]
     out["events"] = [e for e in out["events"] if e.get("addr") or "venue:" + (e.get("venue") or "").lower() not in BLOCKED]
     out["read"]["restaurants"] = [r for r in out["read"]["restaurants"] if "src:" + (r.get("source") or "").lower() not in BLOCKED]
     today = dt.date.today().isoformat()
@@ -177,6 +183,8 @@ def build_demo():
         "local": [art("City council approves downtown plan", "Mirror Indy", "The vote was 6 to 3.")],
         "restaurants": [art("New pizza spot opens on Mass Ave", "Indianapolis Monthly", "Wood-fired and walkable.")],
         "baby": [b("Your baby this week: fingernails and hiccups", "BabyCenter")]}
+    out["races"] = [{"title": "Monument Mile 5K", "date": iso(20), "where": "Indianapolis, IN", "events": ["5K", "Kids run"], "url": "#", "source": "RunSignup"},
+                    {"title": "Indy Spring Triathlon", "date": iso(120), "where": "Carmel, IN", "events": ["Sprint", "Olympic"], "url": "#", "source": "RunSignup"}]
     out["do317"] = [b("This Weekend in Indy", "Do317", "Concerts, markets, brunch")]
     out["events"] = [{"title": "Sample Band Live", "date": iso(12), "time": "20:00", "venue": "The Vogue", "url": "#", "source": "Ticketmaster"},
                      {"title": "Holiday Market", "date": iso(30), "time": "", "venue": "Do317", "url": "#", "source": "Email"}]
