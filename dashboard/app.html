@@ -38,7 +38,10 @@ summary{cursor:pointer;list-style:none;outline:none}summary::-webkit-details-mar
 summary b{color:var(--fg);font-weight:640;line-height:1.35}summary:hover b{color:var(--acc)}details[open] summary b{color:var(--acc)}
 .body{white-space:pre-wrap;word-break:break-word;margin:10px 0;padding:14px 16px;background:var(--soft);border:1px solid var(--bd);border-radius:12px;font-size:.92rem;line-height:1.6;max-height:70vh;overflow:auto}
 .mailframe{display:block;width:100%;height:320px;border:1px solid var(--bd);border-radius:12px;margin:10px 0;background:#fff}
-.openlink{display:inline-block;margin:2px 0 4px;font-size:.84rem}.exp{margin-top:6px}summary.row{display:flex}
+.openlink{display:inline-block;margin:2px 0 4px;font-size:.84rem}.exp{margin-top:6px}
+.ai{margin:10px 0 6px;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,var(--tag),var(--soft));border:1px solid var(--bd)}
+.ai-h{font-size:.72rem;font-weight:750;letter-spacing:.07em;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.ai-b{white-space:pre-line;line-height:1.55}.fulltxt{margin-top:8px}.fulltxt summary{color:var(--acc);font-size:.84rem;font-weight:600;cursor:pointer}summary.row{display:flex}
 /* rows with the three controls */
 .row{display:flex;gap:12px;align-items:flex-start}.grow{flex:1;min-width:0}
 .rd{appearance:none;-webkit-appearance:none;flex:none;width:22px;height:22px;margin:1px 0 0;border:2px solid var(--bd);border-radius:50%;cursor:pointer;background:var(--card);transition:.15s;display:grid;place-items:center}
@@ -214,7 +217,11 @@ const frame=h=>`<iframe class="mailframe" onload="fitFrame(this)" sandbox="allow
 /* size the sandboxed email frame to its content (scripts stay blocked: no allow-scripts) */
 function fitFrame(f){try{const d=f.contentDocument,fit=()=>{f.style.height=Math.max(120,d.documentElement.scrollHeight+6)+"px"};fit();
   if(window.ResizeObserver)new ResizeObserver(fit).observe(d.documentElement);d.querySelectorAll("img").forEach(i=>i.addEventListener("load",fit))}catch(e){}}
-const exp=(body,url,h,label)=>`<div class="exp">${h?frame(h):`<div class="body">${esc(body||"(no text)")}</div>`}${aTag(url,esc(label||"Open in Gmail ↗"),"openlink")}</div>`;
+const exp=(body,url,h,label,ai)=>{
+  const link=aTag(url,esc(label||"Open in Gmail ↗"),"openlink");
+  const aiBox=ai?`<div class="ai"><div class="ai-h">✨ AI summary</div><div class="ai-b">${esc(ai)}</div></div>`:"";
+  const full=h?frame(h):ai?`<details class="fulltxt"><summary>Show full text</summary><div class="body">${esc(body||"(no text)")}</div></details>`:`<div class="body">${esc(body||"(no text)")}</div>`;
+  return `<div class="exp">${aiBox}${ai?link:""}${full}${ai?"":link}</div>`};
 const row=(i,headHtml,bodyHtml="")=>{
   const attrs=`data-id="${esc(i.id)}" data-bk="${esc(bkOf(i))}" data-name="${esc(i.nm||i.from||"")}"`;
   const inner=`<input type="checkbox" class="rd" title="Done" aria-label="Mark as done"><div class="grow">${headHtml}</div><div class="acts"><button class="blk" title="Filter: never show from this sender/source">🚫<span class="lb"> Filter</span></button><button class="x" title="Remove" aria-label="Remove">✕</button></div>`;
@@ -223,8 +230,8 @@ const row=(i,headHtml,bodyHtml="")=>{
 const when=ts=>{if(!ts)return "";const d=new Date(ts*1000),n=new Date(),same=d.toDateString()===n.toDateString();
   const t=d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
   return same?t:d.toLocaleDateString([], {month:"short",day:"numeric",...(d.getFullYear()!==n.getFullYear()?{year:"numeric"}:{})})+", "+t};
-const mail=i=>row(i,`<b>${esc(i.title)}</b> <span class="d">· ${esc(when(i.ts))}</span><div class="m">${esc(i.from)}${i.snippet?" — "+esc(i.snippet):""}</div>${tags(i)}`,exp(i.body,i.url,i.html));
-const art=i=>row(i,`<b>${esc(i.title)}</b> <span class="d">· ${esc(i.source)}${i.ts?" · "+esc(when(i.ts)):""}</span><div class="m">${esc((i.summary||"").slice(0,150))}</div>`,exp(i.text||i.summary,i.url,null,"Read the full article ↗"));
+const mail=i=>row(i,`<b>${esc(i.title)}</b> <span class="d">· ${esc(when(i.ts))}</span><div class="m">${esc(i.from)}${i.snippet?" — "+esc(i.snippet):""}</div>${tags(i)}`,exp(i.body,i.url,i.html,null,i.ai));
+const art=i=>row(i,`<b>${esc(i.title)}</b> <span class="d">· ${esc(i.source)}${i.ts?" · "+esc(when(i.ts)):""}</span><div class="m">${esc((i.summary||"").slice(0,150))}</div>`,exp(i.text||i.summary,i.url,null,"Read the full article ↗",i.ai));
 const list=(a,f,e="Nothing new")=>{a=vis(a);return a.length?`<ul>${a.map(f).join("")}</ul>`:`<p class="empty">${e}</p>`};
 const head=(ic,t,n,box)=>`<div class="sh"><span class="ic">${ic}</span><h2>${t}</h2>${n==null?"":`<span class="cnt"${box?" data-count":""}>${n}</span>`}</div>`;
 const fmtD=e=>e.date?new Date(e.date+"T12:00"):null;

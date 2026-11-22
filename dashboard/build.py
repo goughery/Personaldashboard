@@ -1,6 +1,6 @@
 """Collect data -> data.json structure. Usage: python -m dashboard.build [--demo]"""
 import datetime as dt, html, json, os, re, sys, time
-from . import scoring, sources
+from . import scoring, sources, summarize
 
 CFG = json.load(open(os.path.join(os.path.dirname(__file__), "..", "config.json")))
 DATE_RX = re.compile(r"\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+(\d{1,2})(?:,?\s+(\d{4}))?", re.I)
@@ -171,6 +171,9 @@ def build_live():
     horizon = (dt.date.today() + dt.timedelta(days=30 * CFG["events"]["months_ahead"])).isoformat()
     out["events"] = sorted((e for e in out["events"] if not e["date"] or today <= e["date"] <= horizon),
                            key=lambda e: e["date"] or "9999")
+    R = out["read"]
+    note = summarize.add_summaries([*R["brew"], *R["baby"], *R["world"], *R["local"], *R["restaurants"]], CFG)
+    if note: out["notes"].append(note)
     return out
 
 
@@ -186,8 +189,8 @@ def build_demo():
            {"title": "Offsite", "start": iso(12), "end": iso(15), "allDay": True, "cal": "Work", "color": "#33b679", "url": "#", "loc": "Chicago"}]
     out["repo"] = "demo/demo"
     out["read"] = {
-        "brew": [b("Today's Morning Brew", "Morning Brew", "Markets, tech and more", html="<h2>Happy Friday</h2><p>Real <a href=\"https://example.com\">newsletter</a> layout.</p><script>alert(1)</script>")],
-        "world": [art("Investigation: how a small fund moved millions", "ProPublica", "A long investigation."), art("Talks resume in Geneva", "BBC World", "Diplomats met on Friday.")],
+        "brew": [b("Today's Morning Brew", "Morning Brew", "Markets, tech and more", ai="• Markets steadied after a volatile week.\n• A new chip plant was announced in Ohio.\n• Three tips for a better morning.", html="<h2>Happy Friday</h2><p>Real <a href=\"https://example.com\">newsletter</a> layout.</p><script>alert(1)</script>")],
+        "world": [art("Investigation: how a small fund moved millions", "ProPublica", "A long investigation.", ai="• A small fund routed millions through shell companies.\n• Regulators were warned twice and did not act.\n• The fund says it followed the rules."), art("Talks resume in Geneva", "BBC World", "Diplomats met on Friday.")],
         "local": [art("City council approves downtown plan", "Mirror Indy", "The vote was 6 to 3.")],
         "restaurants": [art("New pizza spot opens on Mass Ave", "Indianapolis Monthly", "Wood-fired and walkable.")],
         "baby": [b("Your baby this week: fingernails and hiccups", "BabyCenter")]}

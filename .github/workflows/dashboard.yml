@@ -46,6 +46,7 @@ jobs:
           ADDR_SUPPORT: ${{ secrets.ADDR_SUPPORT }}
           ADDR_CASCADE: ${{ secrets.ADDR_CASCADE }}
           TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           RUNSIGNUP_API_KEY: ${{ secrets.RUNSIGNUP_API_KEY }}
           RUNSIGNUP_API_SECRET: ${{ secrets.RUNSIGNUP_API_SECRET }}
       - name: Refuse to publish unencrypted

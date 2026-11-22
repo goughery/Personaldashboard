@@ -56,3 +56,8 @@ Top to bottom: Weather + 6:45 workout reminder, Calendar, Important mail (all th
   Anyone who knows the topic name could read it or post to it, so keep it secret.
 - **Races:** needs a free RunSignup API key and secret (runsignup.com → your account → API / Partner tools). Add them as secrets
   `RUNSIGNUP_API_KEY` and `RUNSIGNUP_API_SECRET`. Zip code, radius and months are under `races` in `config.json`.
+
+## AI summaries (optional)
+Add the repo secret `ANTHROPIC_API_KEY` (an API key from console.anthropic.com; billed separately from the Claude app, so set a spend limit there).
+At build time the Read section's articles and the Morning Brew / Baby newsletters are summarized (model and item cap under `ai` in `config.json`).
+Expanding an item shows the summary first, then the "Read the full article" link, then "Show full text". Personal and business mail is never sent to the API.

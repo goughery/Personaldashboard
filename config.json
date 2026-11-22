@@ -194,5 +194,9 @@
   "notify": {
     "hour": 6,
     "minute": 0
+  },
+  "ai": {
+    "model": "claude-haiku-5-5",
+    "max_items": 40
   }
 }
