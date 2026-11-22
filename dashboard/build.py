@@ -173,9 +173,9 @@ def build_demo():
     iso = lambda n: (d + dt.timedelta(days=n)).isoformat()
     art = lambda t, src, s, **k: dict({"title": t, "source": src, "summary": s, "text": s + "\n\n" + s * 3, "url": "#", "ts": now - 7200}, **k)
     out["notes"] = ["Demo data"]
-    out["calendar"] = [{"title": "Dentist", "start": iso(1) + "T09:00:00-05:00", "end": iso(1) + "T10:00:00-05:00", "allDay": False, "cal": "Personal", "url": "#", "loc": ""},
-           {"title": "Heather's birthday", "start": iso(5), "end": iso(6), "allDay": True, "cal": "Family", "url": "#", "loc": ""},
-           {"title": "Offsite", "start": iso(12), "end": iso(15), "allDay": True, "cal": "Work", "url": "#", "loc": "Chicago"}]
+    out["calendar"] = [{"title": "Dentist", "start": iso(1) + "T09:00:00-05:00", "end": iso(1) + "T10:00:00-05:00", "allDay": False, "cal": "Personal", "color": "#4285f4", "url": "#", "loc": ""},
+           {"title": "Heather's birthday", "start": iso(5), "end": iso(6), "allDay": True, "cal": "Family", "color": "#e67c73", "url": "#", "loc": ""},
+           {"title": "Offsite", "start": iso(12), "end": iso(15), "allDay": True, "cal": "Work", "color": "#33b679", "url": "#", "loc": "Chicago"}]
     out["repo"] = "demo/demo"
     out["read"] = {
         "brew": [b("Today's Morning Brew", "Morning Brew", "Markets, tech and more", html="<h2>Happy Friday</h2><p>Real <a href=\"https://example.com\">newsletter</a> layout.</p><script>alert(1)</script>")],

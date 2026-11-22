@@ -132,7 +132,7 @@ def calendar_events(gm, days=245, exclude=()):
                 out.append({"title": e.get("summary", "(busy)"),
                             "start": s.get("dateTime") or s.get("date"),
                             "end": en.get("dateTime") or en.get("date"),
-                            "allDay": "date" in s, "cal": name,
+                            "allDay": "date" in s, "cal": name, "color": c.get("backgroundColor", ""),
                             "url": e.get("htmlLink", ""), "loc": e.get("location", "")})
             token = j.get("nextPageToken")
             if not token:
