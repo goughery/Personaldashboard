@@ -108,13 +108,17 @@ def build_live():
                 out["do317"] = got
         ctx = ctx_for(g)
         scored = []
-        for m in g.search("in:inbox newer_than:14d", limit=100):
+        msgs = g.search("in:inbox newer_than:14d", limit=100)
+        n_excl = 0
+        for m in msgs:
             if excluded(m, "important"):
+                n_excl += 1
                 continue
             s, why = scoring.score(m, ctx, CFG)
             if s >= CFG["scoring"]["todo_min_score"]:
                 scored.append((s, m, why))
         scored.sort(key=lambda t: (-t[0], -t[1]["ts"]))
+        out["notes"].append(f"Mail scan, personal: {len(msgs)} inbox messages (14 days), {n_excl} excluded, {len(scored)} important; sent mail read: {len(ctx['sent_threads'])} threads.")
         out["todos"] = [dict(brief(m, g), score=s, why=why) for s, m, why in scored[:CFG["scoring"]["max_items"]]]
         for m in g.search(CFG["events"]["email_query"], 25) + g.search("from:do317.com newer_than:30d", 25):
             if excluded(m, "events"):
@@ -128,13 +132,17 @@ def build_live():
         g = accts[key][0]
         ctx = ctx_for(g)
         scored = []
-        for m in g.search("in:inbox newer_than:14d", limit=100):
+        msgs = g.search("in:inbox newer_than:14d", limit=100)
+        n_excl = 0
+        for m in msgs:
             if excluded(m, key, "important"):
+                n_excl += 1
                 continue
             s, why = scoring.score(m, ctx, CFG, business=True)
             if s >= CFG["scoring"]["business_min_score"]:
                 scored.append((s, m, why))
         scored.sort(key=lambda t: (-t[0], -t[1]["ts"]))
+        out["notes"].append(f"Mail scan, {key}: {len(msgs)} inbox messages (14 days), {n_excl} excluded, {len(scored)} important.")
         out["business"][key] = {"label": CFG["accounts"][key]["label"],
                                 "items": [dict(brief(m, g), score=s, why=why) for s, m, why in scored[:CFG["scoring"]["max_items"]]]}
     try:
