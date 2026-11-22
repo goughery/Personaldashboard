@@ -58,7 +58,7 @@ class Gmail:
             "from_name": name or addr, "from_addr": addr.lower(),
             "to": h.get("to", "").lower(), "subject": h.get("subject", "(no subject)"),
             "snippet": j.get("snippet", ""), "ts": ts, "bulk": "list-unsubscribe" in h,
-            "link": f"https://mail.google.com/mail/u/{self.index}/#all/{j['id']}",
+            "link": f"https://mail.google.com/mail/u/{self.index}/#all/{j['threadId']}",
         }
 
     def body(self, mid, limit=6000, html_cap=150_000):

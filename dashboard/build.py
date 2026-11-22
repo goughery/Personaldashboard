@@ -63,6 +63,13 @@ def email_event_date(m):
         return ""
 
 
+def base_out():
+    content = json.load(open(os.path.join(os.path.dirname(__file__), "content.json")))
+    return {"generated": time.time(), "events": [], "todos": [], "business": {}, "do317": [], "notes": [],
+            "calendar": [], "state": STATE, "repo": os.environ.get("GITHUB_REPOSITORY", ""),
+            "weather": CFG["weather"], "workout": CFG["workout"], "content": content}
+
+
 def build_live():
     from .gmail import Gmail
     accts, ctx_all = {}, {}
@@ -73,9 +80,8 @@ def build_live():
             continue
         accts[key] = (Gmail(tok, a["gmail_index"]), os.environ.get(a["address_env"], "").lower())
     me = {addr for _, addr in accts.values() if addr}
-    out = {"generated": time.time(), "briefing": {}, "events": [], "restaurants": [],
-           "todos": [], "business": {}, "notes": [], "calendar": [], "state": STATE,
-           "repo": os.environ.get("GITHUB_REPOSITORY", "")}
+    out = base_out()
+    out["read"] = {"brew": [], "baby": [], "world": [], "local": [], "restaurants": []}
     cal_key = CFG["calendar"]["account"]
     if cal_key in accts:
         try:
@@ -93,11 +99,17 @@ def build_live():
     if "personal" in accts:
         g = accts["personal"][0]
         for k, q in CFG["briefing"].items():
-            out["briefing"][k] = [brief(m, g, rich=True) for m in g.search(q, 8) if not excluded(m)][:5]
+            got = [brief(m, g, rich=True) for m in g.search(q, 8) if not excluded(m)][:5]
+            if k == "morning_brew":
+                out["read"]["brew"] = got
+            elif k == "baby":
+                out["read"]["baby"] = got
+            else:
+                out["do317"] = got
         ctx = ctx_for(g)
         scored = []
         for m in g.search("in:inbox newer_than:14d", limit=100):
-            if excluded(m):
+            if excluded(m, "important"):
                 continue
             s, why = scoring.score(m, ctx, CFG)
             if s >= CFG["scoring"]["todo_min_score"]:
@@ -117,7 +129,7 @@ def build_live():
         ctx = ctx_for(g)
         scored = []
         for m in g.search("in:inbox newer_than:14d", limit=100):
-            if excluded(m, key):
+            if excluded(m, key, "important"):
                 continue
             s, why = scoring.score(m, ctx, CFG, business=True)
             if s >= CFG["scoring"]["business_min_score"]:
@@ -131,11 +143,16 @@ def build_live():
         if note: out["notes"].append(note)
     except Exception as ex:
         out["notes"].append(f"Concerts failed: {ex}")
+    rc = CFG["read"]
+    for k in ("world", "local"):
+        got, note = sources.news(rc[k], rc["per_feed"], rc["limit"])
+        out["read"][k] = [r for r in got if "src:" + r["source"].lower() not in BLOCKED]
+        if note: out["notes"].append(f"{k.title()} feeds: {note}")
     rs, note = sources.restaurants(CFG)
-    out["restaurants"] = rs
+    out["read"]["restaurants"] = rs
     if note: out["notes"].append(f"Restaurant feeds: {note}")
     out["events"] = [e for e in out["events"] if e.get("addr") or "venue:" + (e.get("venue") or "").lower() not in BLOCKED]
-    out["restaurants"] = [r for r in out["restaurants"] if "src:" + (r.get("source") or "").lower() not in BLOCKED]
+    out["read"]["restaurants"] = [r for r in out["read"]["restaurants"] if "src:" + (r.get("source") or "").lower() not in BLOCKED]
     today = dt.date.today().isoformat()
     horizon = (dt.date.today() + dt.timedelta(days=30 * CFG["events"]["months_ahead"])).isoformat()
     out["events"] = sorted((e for e in out["events"] if not e["date"] or today <= e["date"] <= horizon),
@@ -144,26 +161,30 @@ def build_live():
 
 
 def build_demo():
+    out = base_out()
     now = time.time(); d = dt.date.today()
-    b = lambda t, f, s="": {"id": "id" + str(abs(hash(t))), "addr": f.lower().replace(" ", "") + "@example.com", "title": t, "from": f, "url": "#", "snippet": s, "ts": now - 3600, "body": "Full message text appears here when you expand an item.\n\nSecond paragraph."}
+    b = lambda t, f, s="", **k: dict({"id": "id" + str(abs(hash(t))), "addr": f.lower().replace(" ", "") + "@example.com", "title": t, "from": f, "url": "#", "snippet": s, "ts": now - 3600, "body": "Full message text appears here when you expand an item.\n\nSecond paragraph."}, **k)
     iso = lambda n: (d + dt.timedelta(days=n)).isoformat()
-    cal = [{"title": "Dentist", "start": iso(1) + "T09:00:00-05:00", "end": iso(1) + "T10:00:00-05:00", "allDay": False, "cal": "Personal", "url": "#", "loc": ""},
+    art = lambda t, src, s, **k: dict({"title": t, "source": src, "summary": s, "text": s + "\n\n" + s * 3, "url": "#", "ts": now - 7200}, **k)
+    out["notes"] = ["Demo data"]
+    out["calendar"] = [{"title": "Dentist", "start": iso(1) + "T09:00:00-05:00", "end": iso(1) + "T10:00:00-05:00", "allDay": False, "cal": "Personal", "url": "#", "loc": ""},
            {"title": "Heather's birthday", "start": iso(5), "end": iso(6), "allDay": True, "cal": "Family", "url": "#", "loc": ""},
            {"title": "Offsite", "start": iso(12), "end": iso(15), "allDay": True, "cal": "Work", "url": "#", "loc": "Chicago"}]
-    return {"generated": now, "notes": ["Demo data"], "calendar": cal, "repo": "demo/demo",
-            "state": {"blocked": [], "read": {}},
-            "briefing": {"morning_brew": [dict(b("☕ Today's Morning Brew", "Morning Brew", "Markets, tech and more"), html="<h2>Happy Friday</h2><p>Real <a href=\"https://example.com\">newsletter</a> layout.</p><script>alert(1)</script>")],
-                         "baby": [b("Your baby this week: fingernails and hiccups", "BabyCenter")],
-                         "do317": [b("This Weekend in Indy", "Do317", "Concerts, markets, brunch")]},
-            "events": [{"title": "Sample Band Live", "date": (d + dt.timedelta(days=12)).isoformat(), "time": "20:00",
-                        "venue": "The Vogue", "url": "#", "source": "Ticketmaster"},
-                       {"title": "Holiday Market", "date": (d + dt.timedelta(days=30)).isoformat(), "time": "",
-                        "venue": "Do317", "url": "#", "source": "Email"}],
-            "restaurants": [{"title": "New pizza spot opens on Mass Ave", "summary": "Wood-fired and walkable.", "url": "#", "date": "", "source": "Indianapolis Monthly"}],
-            "todos": [dict(b("Dinner Saturday?", "Heather", "Are we still on for…"), score=11, why=["Heather", "unread"]),
-                      dict(b("Re: Q4 plan", "Alex Moore", "Looks good, one change"), score=10, why=["Alex Moore", "reply to you"])],
-            "business": {"support": {"label": "StatementsToSheets Support", "items": [dict(b("Refund request", "Customer", "Charged twice"), score=6, why=["refund"])]},
-                         "cascade": {"label": "Cascade Foundry", "items": []}}}
+    out["repo"] = "demo/demo"
+    out["read"] = {
+        "brew": [b("Today's Morning Brew", "Morning Brew", "Markets, tech and more", html="<h2>Happy Friday</h2><p>Real <a href=\"https://example.com\">newsletter</a> layout.</p><script>alert(1)</script>")],
+        "world": [art("Investigation: how a small fund moved millions", "ProPublica", "A long investigation."), art("Talks resume in Geneva", "BBC World", "Diplomats met on Friday.")],
+        "local": [art("City council approves downtown plan", "Mirror Indy", "The vote was 6 to 3.")],
+        "restaurants": [art("New pizza spot opens on Mass Ave", "Indianapolis Monthly", "Wood-fired and walkable.")],
+        "baby": [b("Your baby this week: fingernails and hiccups", "BabyCenter")]}
+    out["do317"] = [b("This Weekend in Indy", "Do317", "Concerts, markets, brunch")]
+    out["events"] = [{"title": "Sample Band Live", "date": iso(12), "time": "20:00", "venue": "The Vogue", "url": "#", "source": "Ticketmaster"},
+                     {"title": "Holiday Market", "date": iso(30), "time": "", "venue": "Do317", "url": "#", "source": "Email"}]
+    out["todos"] = [b("Dinner Saturday?", "Heather", "Are we still on for…", score=11, why=["Heather", "unread"]),
+                    b("Re: Q4 plan", "Alex Moore", "Looks good, one change", score=10, why=["Alex Moore", "reply to you"])]
+    out["business"] = {"support": {"label": "StatementsToSheets Support", "items": [b("Refund request", "Customer", "Charged twice", score=6, why=["refund"])]},
+                       "cascade": {"label": "Cascade Foundry", "items": []}}
+    return out
 
 
 def main():

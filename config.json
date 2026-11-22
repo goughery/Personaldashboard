@@ -44,8 +44,14 @@
   },
   "restaurants": {
     "feeds": [
-      "https://www.indianapolismonthly.com/feed",
-      "https://www.eater.com/rss/index.xml"
+      {
+        "name": "Indianapolis Monthly",
+        "url": "https://www.indianapolismonthly.com/feed"
+      },
+      {
+        "name": "Eater",
+        "url": "https://www.eater.com/rss/index.xml"
+      }
     ],
     "keywords": [
       "restaurant",
@@ -74,7 +80,8 @@
       "zionsville",
       "westfield",
       "greenwood"
-    ]
+    ],
+    "max": 10
   },
   "scoring": {
     "business_keywords": [
@@ -110,12 +117,72 @@
       "f5 bot"
     ],
     "events": [
-      "nextdoor"
+      "baby center",
+      "babycenter",
+      "morning brew",
+      "morningbrew",
+      "nextdoor",
+      "pregnan",
+      "the playbook",
+      "week by week",
+      "week-by-week",
+      "your baby"
+    ],
+    "important": [
+      "morningbrew",
+      "morning brew",
+      "babycenter",
+      "baby center",
+      "do317",
+      "propublica",
+      "the playbook"
     ]
   },
   "calendar": {
     "account": "personal",
     "days_ahead": 245,
     "exclude_calendars": []
+  },
+  "weather": {
+    "label": "Indianapolis",
+    "lat": 39.7684,
+    "lon": -86.1581,
+    "tz": "America/Indiana/Indianapolis"
+  },
+  "workout": {
+    "leave_by": "06:45",
+    "late_after": "07:30"
+  },
+  "read": {
+    "per_feed": 6,
+    "limit": 12,
+    "world": [
+      {
+        "name": "ProPublica",
+        "url": "https://feeds.propublica.org/propublica/main"
+      },
+      {
+        "name": "BBC World",
+        "url": "https://feeds.bbci.co.uk/news/world/rss.xml"
+      },
+      {
+        "name": "NPR World",
+        "url": "https://feeds.npr.org/1004/rss.xml"
+      }
+    ],
+    "local": [
+      {
+        "name": "Mirror Indy",
+        "url": "https://mirrorindy.org/feed/"
+      },
+      {
+        "name": "Indiana Capital Chronicle",
+        "url": "https://indianacapitalchronicle.com/feed/"
+      },
+      {
+        "name": "IndyStar",
+        "url": "https://rssfeeds.indystar.com/indystar/home"
+      }
+    ]
   }
 }

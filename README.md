@@ -38,3 +38,13 @@ Preview locally: `python -m dashboard.build --demo` then open `site/index.html`.
   *Contents: Read and write*. Paste it under **⚙ Sync** on the page (once per device). Changes are committed to `state.json`
   (pushes that touch only that file don't trigger a rebuild) and the daily build also honors them. If the repo is public,
   `state.json` (filtered sender addresses) is visible to anyone.
+
+## Layout and daily content
+Top to bottom: Weather + 6:45 workout reminder, Calendar, Important mail (all three inboxes, news excluded), Read
+(Morning Brew, World, Local, Indy restaurants, Baby; opening an item expands its card to full width), Events, Verse of the day,
+"Lead her well".
+- `dashboard/content.json`: the daily Bible verses (KJV), "lead her well" snippets and workout nudges. Edit or add your own; one of each is picked per day.
+- `config.json`: `workout.leave_by`, `weather` coordinates, and the RSS feeds under `read.world`, `read.local` and `restaurants.feeds`
+  (a feed that fails is skipped and noted at the bottom of the page).
+- Weather is fetched live in the browser from Open-Meteo (no key needed).
+- On Android, email links open the Gmail app (Settings → "Open email links in"). iPhone has no message deep link, so it uses the browser.

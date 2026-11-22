@@ -1,79 +1,148 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>My Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c0e13"><title>Morning Dashboard</title>
 <style>
-:root{--bg:#f4f5f8;--card:#fff;--fg:#1a1d24;--mut:#6b7280;--acc:#2f6fed;--bd:#e5e7eb;--tag:#eef2ff;--pot:#c77700;--potbg:#fff4de}
-@media(prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#171a21;--fg:#e8eaf0;--mut:#9aa3b2;--acc:#6ea0ff;--bd:#272b35;--tag:#222a44;--pot:#f0b24a;--potbg:#3a2d12}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,sans-serif}
-header{padding:20px 16px 4px;max-width:1200px;margin:auto;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:end;justify-content:space-between}
-h1{margin:0;font-size:1.5rem}header p{margin:2px 0;color:var(--mut)}
-.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.btn,.sw{font:inherit;font-size:.85rem;background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:99px;padding:6px 12px;cursor:pointer}
-.sw input{margin-right:6px}
-main{max-width:1200px;margin:auto;padding:8px 16px 40px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
-section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;min-width:0}
-h2{margin:0 0 8px;font-size:1.05rem}h3{margin:12px 0 4px;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
-ul{list-style:none;margin:0;padding:0}li{padding:8px 0;border-top:1px solid var(--bd)}li:first-child{border-top:0}
-a{color:var(--acc);text-decoration:none;font-weight:500}a:hover{text-decoration:underline}
-.m{color:var(--mut);font-size:.85rem}.t{display:inline-block;background:var(--tag);color:var(--acc);border-radius:99px;padding:0 8px;font-size:.72rem;margin-right:4px}
-.d{font-variant-numeric:tabular-nums;color:var(--mut);font-size:.85rem}.wide{grid-column:1/-1}.empty{color:var(--mut)}
-summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:none}summary b{color:var(--acc);font-weight:500}
-details[open] summary b{font-weight:700}
-.body{white-space:pre-wrap;word-break:break-word;margin:8px 0;padding:10px;background:var(--bg);border-radius:8px;font-size:.88rem;max-height:60vh;overflow:auto}
-.mailframe{width:100%;height:70vh;border:1px solid var(--bd);border-radius:8px;margin:8px 0;background:#fff}
-/* rows: read checkbox + content + filter button */
-.row{display:flex;gap:10px;align-items:flex-start}.grow{flex:1;min-width:0}
-.rd{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--acc);cursor:pointer}
-.x{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--bd);background:var(--card);color:var(--mut);font-size:.9rem;line-height:1;cursor:pointer;padding:0}.x:hover{color:var(--fg);border-color:var(--fg)}
-.acts{display:flex;gap:6px;align-items:flex-start;flex:none}.lb{display:none}@media(min-width:700px){.lb{display:inline}}
-.blk{display:block;flex:none;font:inherit;font-size:.8rem;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:8px;padding:4px 8px;cursor:pointer}
+:root{
+  --bg:#f2f3f8;--card:#fff;--fg:#141821;--mut:#667085;--acc:#3b6df0;--bd:#e6e8ee;--soft:#f6f7fb;--tag:#eaf0ff;
+  --pot:#b86e00;--potbg:#fff3dc;--ok:#1a9d5b;--shadow:0 1px 2px rgba(16,24,40,.05),0 10px 28px rgba(16,24,40,.07);
+  --r:18px;--serif:Georgia,"Iowan Old Style","Times New Roman",serif}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0b0d12;--card:#141821;--fg:#eceff6;--mut:#9aa4b5;--acc:#7aa2ff;--bd:#232937;--soft:#1a1f2b;--tag:#1d2745;
+  --pot:#f2b552;--potbg:#33280f;--ok:#46d28b;--shadow:0 1px 2px rgba(0,0,0,.45),0 10px 28px rgba(0,0,0,.35)}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
+  background-image:radial-gradient(1200px 500px at 85% -10%,rgba(91,124,255,.13),transparent 60%),radial-gradient(900px 400px at -10% 0%,rgba(255,122,69,.10),transparent 55%);background-repeat:no-repeat}
+.wrap{max-width:1180px;margin:auto;padding:0 16px calc(48px + env(safe-area-inset-bottom))}
+header.top{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end;justify-content:space-between;padding:calc(22px + env(safe-area-inset-top)) 0 14px}
+.eyebrow{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);font-weight:650}
+h1{margin:2px 0 0;font-size:clamp(1.55rem,4.4vw,2.2rem);letter-spacing:-.025em;line-height:1.12;font-weight:780}
+.tools{display:flex;gap:8px}
+.btn{font:inherit;font-size:.84rem;font-weight:560;background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:99px;padding:7px 14px;cursor:pointer;box-shadow:0 1px 2px rgba(16,24,40,.04);transition:.15s}
+.btn:hover{border-color:var(--acc);color:var(--acc)}.btn:disabled{opacity:.4;cursor:default}
+main{display:grid;gap:16px}
+.hero{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:820px){.hero{grid-template-columns:1fr 1.15fr}.pair{grid-template-columns:1.2fr 1fr!important}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);min-width:0}
+.sh{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.sh h2{margin:0;font-size:1.08rem;font-weight:720;letter-spacing:-.01em}
+.ic{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--tag);font-size:1rem}
+.cnt{margin-left:auto;font-size:.74rem;font-weight:650;color:var(--mut);background:var(--soft);border:1px solid var(--bd);border-radius:99px;padding:1px 9px;font-variant-numeric:tabular-nums}
+h3{margin:16px 0 4px;font-size:.76rem;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);font-weight:700;display:flex;align-items:center;gap:8px}
+h3:first-child{margin-top:0}h3 .cnt{margin-left:0}
+ul{list-style:none;margin:0;padding:0}
+li{padding:10px 0;border-top:1px solid var(--bd)}li:first-child{border-top:0}
+a{color:var(--acc);text-decoration:none;font-weight:540}a:hover{text-decoration:underline}
+.m{color:var(--mut);font-size:.85rem}.t{display:inline-block;background:var(--tag);color:var(--acc);border-radius:99px;padding:0 9px;font-size:.7rem;font-weight:620;margin:3px 4px 0 0}
+.d{font-variant-numeric:tabular-nums;color:var(--mut);font-size:.82rem;font-weight:450}.empty{color:var(--mut);margin:6px 0}
+summary{cursor:pointer;list-style:none;outline:none}summary::-webkit-details-marker{display:none}
+summary b{color:var(--fg);font-weight:640;line-height:1.35}summary:hover b{color:var(--acc)}details[open] summary b{color:var(--acc)}
+.body{white-space:pre-wrap;word-break:break-word;margin:10px 0;padding:14px 16px;background:var(--soft);border:1px solid var(--bd);border-radius:12px;font-size:.92rem;line-height:1.6;max-height:70vh;overflow:auto}
+.mailframe{display:block;width:100%;height:320px;border:1px solid var(--bd);border-radius:12px;margin:10px 0;background:#fff}
+.openlink{display:inline-block;margin:2px 0 4px;font-size:.84rem}.exp{margin-top:6px}summary.row{display:flex}
+/* rows with the three controls */
+.row{display:flex;gap:12px;align-items:flex-start}.grow{flex:1;min-width:0}
+.rd{appearance:none;-webkit-appearance:none;flex:none;width:22px;height:22px;margin:1px 0 0;border:2px solid var(--bd);border-radius:50%;cursor:pointer;background:var(--card);transition:.15s;display:grid;place-items:center}
+.rd:hover{border-color:var(--ok)}.rd:checked{background:var(--ok);border-color:var(--ok)}.rd:checked::after{content:"✓";color:#fff;font-size:.8rem;font-weight:800;line-height:1}
+.acts{display:flex;gap:6px;align-items:flex-start;flex:none}
+.blk,.x{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--mut);border-radius:99px;cursor:pointer;transition:.15s;height:28px;font-size:.78rem;line-height:1;padding:0 9px}
+.x{width:28px;padding:0;font-size:.85rem}.blk:hover,.x:hover{color:var(--fg);border-color:var(--fg)}.lb{display:none}
+@media(min-width:760px){#sImp .lb,#sEv .lb{display:inline}}
+/* hero: weather */
+.wx{background:linear-gradient(145deg,#2f6bff,#6a4df5);color:#fff;border:0;position:relative;overflow:hidden}
+.wx::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.1)}
+.wx .eyebrow{color:rgba(255,255,255,.8)}.wx-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.temp{font-size:3.4rem;font-weight:760;letter-spacing:-.04em;line-height:1;margin:4px 0}.wx-ico{font-size:3.6rem;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.2))}
+.cond{opacity:.95;font-weight:560}.wx-run{margin:12px 0 4px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.16);font-size:.88rem;font-weight:560}
+.wx-days{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px}.wx-days div{text-align:center;font-size:.76rem;padding:7px 2px;border-radius:10px;background:rgba(255,255,255,.12)}
+.wx-days b{display:block;font-size:.72rem;opacity:.85;font-weight:650}.wx-days span{display:block;font-size:1.15rem;line-height:1.35}
+/* hero: workout */
+.wk{border:0;color:#fff;background:linear-gradient(145deg,#ff8a3d,#ff4d6d);display:flex;flex-direction:column;gap:6px}
+.wk.late{background:linear-gradient(145deg,#e5383b,#a4133c)}.wk.done{background:linear-gradient(145deg,#1db56f,#0e8a5f)}
+.wk .eyebrow{color:rgba(255,255,255,.85)}.wk-big{margin:0;font-size:clamp(1.5rem,4vw,2rem);font-weight:800;letter-spacing:-.025em;line-height:1.1}
+.wk-count{font-size:1.02rem;font-weight:650}.wk-why{margin:2px 0 6px;opacity:.95;font-size:.93rem}
+.wk-btn{align-self:flex-start;font:inherit;font-weight:700;border:0;border-radius:99px;padding:10px 18px;cursor:pointer;background:#fff;color:#c2253f;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+.wk.done .wk-btn{color:#0e8a5f}
+/* sources in Read */
+.srcs{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.src{background:var(--soft);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;min-width:0}.src.full{grid-column:1/-1;background:var(--card);box-shadow:var(--shadow)}
+.src .sh{margin-bottom:6px}.src .sh h3{margin:0;font-size:.84rem;color:var(--fg);text-transform:none;letter-spacing:0;font-weight:720}.src .ic{width:28px;height:28px;font-size:.9rem}
+.src li{padding:9px 0}
+/* events */
+.evr{display:flex;gap:12px;align-items:flex-start}.badge{flex:none;width:46px;text-align:center;border-radius:11px;background:var(--tag);color:var(--acc);padding:4px 0 5px;line-height:1.05}
+.badge b{display:block;font-size:.64rem;letter-spacing:.07em;text-transform:uppercase}.badge span{font-size:1.18rem;font-weight:760}
+.morebtn{margin-top:8px}
 /* calendar */
-.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:.8rem;color:var(--mut);margin:4px 0 10px}
-.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--acc);margin-right:4px}.dot.p{background:transparent;border:2px dashed var(--pot)}
-.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.nav b{font-size:1rem}
-.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}.dow{font-size:.7rem;text-align:center;color:var(--mut);padding:2px 0}
-.day{min-height:52px;border:1px solid var(--bd);border-radius:8px;padding:3px 4px;cursor:pointer;background:var(--card);font-size:.78rem;overflow:hidden}
-.day.out{opacity:.35}.day.today{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}.day.sel{background:var(--tag)}
-.day .n{font-variant-numeric:tabular-nums}.dots{display:flex;flex-wrap:wrap;gap:2px;margin-top:2px}
-.dots i{width:7px;height:7px;border-radius:50%;background:var(--acc)}.dots i.p{background:transparent;border:1.5px dashed var(--pot)}
-.chip{display:none}
-@media(min-width:700px){.day{min-height:84px}.dots{display:none}.chip{display:block;font-size:.68rem;line-height:1.25;margin-top:2px;padding:1px 4px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--acc);color:#fff}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:.8rem;color:var(--mut);margin:0 0 10px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--acc);margin-right:5px}.dot.p{background:transparent;border:2px dashed var(--pot)}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.nav b{font-size:1.02rem;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.dow{font-size:.7rem;text-align:center;color:var(--mut);padding:2px 0;font-weight:650}
+.day{min-height:54px;border:1px solid var(--bd);border-radius:10px;padding:4px 5px;cursor:pointer;background:var(--card);font-size:.78rem;overflow:hidden;transition:.12s}
+.day:hover{border-color:var(--acc)}.day.out{opacity:.35}.day.today{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}.day.sel{background:var(--tag)}
+.day .n{font-variant-numeric:tabular-nums;font-weight:600}.dots{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--acc)}.dots i.p{background:transparent;border:1.5px dashed var(--pot)}.chip{display:none}
+@media(min-width:720px){.day{min-height:92px}.dots{display:none}.chip{display:block;font-size:.68rem;line-height:1.25;margin-top:3px;padding:2px 5px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--acc);color:#fff}
 .chip.p{background:var(--potbg);color:var(--pot);border:1px dashed var(--pot)}.more{font-size:.68rem;color:var(--mut)}}
-.ev{border-left:4px solid var(--acc);padding:4px 10px;margin:6px 0;border-radius:4px;background:var(--bg)}
-.ev.p{border-left:4px dashed var(--pot);background:var(--potbg)}.ev .tag{font-size:.7rem;color:var(--pot);font-weight:600;margin-left:4px}
-dialog{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:14px;max-width:min(92vw,480px);width:100%}
-dialog::backdrop{background:rgba(0,0,0,.5)}input[type=text],input[type=password]{width:100%;font:inherit;padding:10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--fg)}
-#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#222;color:#fff;border-radius:10px;padding:10px 14px;font-size:.88rem;display:none;gap:12px;align-items:center;z-index:9;max-width:92vw}
-#toast button{background:none;border:0;color:#8db4ff;font:inherit;cursor:pointer;text-decoration:underline}
-</style></head><body>
-<header><div><h1 id="hi"></h1><p id="gen"></p></div>
-<div class="tools"><button class="btn" id="hid">Hidden (0)</button><button class="btn" id="cfg">⚙ Sync</button></div></header>
-<main id="m"></main>
+.ev{border-left:4px solid var(--acc);padding:6px 12px;margin:8px 0;border-radius:6px 10px 10px 6px;background:var(--soft)}
+.ev.p{border-left:4px dashed var(--pot);background:var(--potbg)}.ev .tag{font-size:.68rem;color:var(--pot);font-weight:750;margin-left:6px;letter-spacing:.05em}
+/* verse + lead */
+.pair{display:grid;gap:16px;grid-template-columns:1fr}
+.verse blockquote{margin:6px 0 10px;font:italic 1.28rem/1.5 var(--serif);letter-spacing:.005em}
+.verse cite{font-style:normal;font-weight:700;color:var(--acc);font-size:.9rem}
+.lead{background:linear-gradient(160deg,var(--card),var(--soft))}.lead p{margin:4px 0 12px;font-size:1.05rem;line-height:1.55;font-weight:480}
+.small{font-size:.8rem}
+dialog{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:18px;max-width:min(92vw,500px);width:100%;box-shadow:var(--shadow)}
+dialog h2{margin-top:0}dialog::backdrop{background:rgba(0,0,0,.55);backdrop-filter:blur(2px)}
+input[type=password],select{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--soft);color:var(--fg)}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1d2230;color:#fff;border-radius:12px;padding:11px 16px;font-size:.88rem;display:none;gap:14px;align-items:center;z-index:9;max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+#toast button{background:none;border:0;color:#9fbcff;font:inherit;font-weight:650;cursor:pointer;text-decoration:underline}
+footer{color:var(--mut);font-size:.78rem;text-align:center;margin-top:22px}
+@media(max-width:600px){.wrap{padding-left:10px;padding-right:10px}.card{padding:15px 14px}.src{padding:12px 10px}.src.full .exp{margin-left:-6px;margin-right:-6px}.src.full .mailframe{border-radius:8px}.body{padding:12px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body><div class="wrap">
+<header class="top"><div><div class="eyebrow" id="date"></div><h1 id="hi"></h1></div>
+<div class="tools"><button class="btn" id="hid">Hidden (0)</button><button class="btn" id="cfg">⚙ Settings</button></div></header>
+<main>
+ <div class="hero"><section class="card wx" id="wx"><div class="eyebrow">Weather</div><p>Loading…</p></section><section class="card wk" id="wk"></section></div>
+ <section class="card" id="sCal"></section>
+ <section class="card" id="sImp" data-box></section>
+ <section class="card" id="sRead" data-box></section>
+ <section class="card" id="sEv"></section>
+ <div class="pair"><section class="card verse" id="sVerse"></section><section class="card lead" id="sLead"></section></div>
+ <section class="card" id="sNotes" hidden></section>
+</main><footer id="gen"></footer></div>
 <div id="toast"></div>
-<dialog id="dHid"><h2>Hidden senders</h2><div id="hidList"></div><h3>Done &amp; removed</h3><p class="m" id="readInfo"></p>
+<dialog id="dHid"><h2>Hidden</h2><h3>Filtered senders &amp; sources</h3><div id="hidList"></div><h3>Done &amp; removed</h3><p class="m" id="readInfo"></p>
 <p><button class="btn" id="clearRead">Restore all done</button> <button class="btn" id="clearGone">Restore all removed</button> <button class="btn" onclick="dHid.close()">Close</button></p></dialog>
-<dialog id="dCfg"><h2>Sync across devices</h2>
-<p class="m">Filters and "read" marks are saved on this device. To make them permanent and shared between devices, paste a GitHub fine-grained token
-(one repository only: this one, permission <b>Contents: Read and write</b>). It's stored only in this browser. Changes are saved to <code>state.json</code> in the repo
-and the daily build also applies them.</p>
-<input type="password" id="tok" placeholder="github_pat_…" autocomplete="off"><p class="m" id="syncStat"></p>
-<p><button class="btn" id="saveTok">Save</button> <button class="btn" id="rmTok">Remove token</button> <button class="btn" onclick="dCfg.close()">Close</button></p></dialog>
+<dialog id="dCfg"><h2>Settings</h2>
+<h3>Open email links in</h3>
+<select id="dopen"><option value="app">Gmail app (Android)</option><option value="web">Browser</option></select>
+<p class="m small">iPhone: Gmail's iOS app has no link to a specific message, so emails open in the browser there.</p>
+<h3>Sync across devices</h3>
+<p class="m small">Filters, done and removed items are saved on this device. To make them permanent and shared, paste a GitHub fine-grained token
+(this repo only, <b>Contents: Read and write</b>). It's stored only in this browser and saved to <code>state.json</code> in the repo.</p>
+<input type="password" id="tok" placeholder="github_pat_…" autocomplete="off"><p class="m small" id="syncStat"></p>
+<p><button class="btn" id="saveTok">Save token</button> <button class="btn" id="rmTok">Remove token</button> <button class="btn" onclick="dCfg.close()">Close</button></p></dialog>
 <script>
 const D=/*DATA*/null;
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const safe=u=>/^https?:|^#/.test(u||"")?u:"#";
 const $=id=>document.getElementById(id);
 const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+const pad=n=>String(n).padStart(2,"0"),dkey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 
-/* ---------- persistent state: blocked senders + read items ---------- */
+/* ---------- state: blocked senders/sources, done, removed ---------- */
 const norm=s=>({blocked:(s&&s.blocked)||[],read:(s&&s.read)||{},gone:(s&&s.gone)||{}});
 let S=(()=>{try{const l=JSON.parse(ls.get("dstate"));if(l)return norm(l)}catch(e){}return norm(D.state)})();
 const FREE=/^@(gmail|googlemail|yahoo|outlook|hotmail|live|icloud|me|aol|proton|protonmail)\./;
-const isBlocked=(k)=>{k=(k||"").toLowerCase();if(!k)return false;const dom=k.includes("@")?"@"+k.split("@").pop():k;return S.blocked.some(b=>b.a===k||b.a===dom)};
+const isBlocked=k=>{k=(k||"").toLowerCase();if(!k)return false;const dom=k.includes("@")?"@"+k.split("@").pop():k;return S.blocked.some(b=>b.a===k||b.a===dom)};
 const hid=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return "x"+(h>>>0).toString(36)};
-for(const e of D.events||[]){e.id=e.id||hid(e.title+e.date+e.venue);e.bk=e.addr||("venue:"+(e.venue||e.source||"").toLowerCase());e.nm=e.addr?e.venue:(e.venue||e.source)}
-for(const r of D.restaurants||[]){r.id=hid(r.title+r.url);r.bk="src:"+(r.source||"").toLowerCase();r.nm=r.source}
+const BABY=/baby\s?center|your baby|pregnan|week[- ]by[- ]week/i;
+D.events=(D.events||[]).filter(e=>!BABY.test(e.title+" "+(e.venue||"")));
+for(const e of D.events){e.id=e.id||hid(e.title+e.date+e.venue);e.bk=e.addr||("venue:"+(e.venue||e.source||"").toLowerCase());e.nm=e.addr?e.venue:(e.venue||e.source)}
+D.read=D.read||{};for(const k of["world","local","restaurants"])for(const r of D.read[k]||[]){r.id=hid((r.url||"")+r.title);r.bk="src:"+(r.source||"").toLowerCase();r.nm=r.source}
 const bkOf=i=>i.bk||i.addr||"";
 const hidden=i=>i.id&&(S.read[i.id]||S.gone[i.id])||isBlocked(bkOf(i));
+const vis=a=>(a||[]).filter(x=>!hidden(x));
 const saveLocal=()=>ls.set("dstate",JSON.stringify(S));
 const token=()=>ls.get("dtoken"),repo=D.repo,API=repo?`https://api.github.com/repos/${repo}/contents/state.json`:"";
 let sha=null,sync=token()?"…":"local only",chain=Promise.resolve();
@@ -106,37 +175,71 @@ const unblockFn=addr=>s=>{s.blocked=s.blocked.filter(b=>b.a!==addr)};
 const readFn=(id,on)=>s=>{if(on)s.read[id]=Date.now();else delete s.read[id]};
 const goneFn=(id,on)=>s=>{if(on)s.gone[id]=Date.now();else delete s.gone[id]};
 
-/* ---------- rendering helpers ---------- */
-const link=(t,u)=>`<a href="${esc(safe(u))}" target="_blank" rel="noopener">${esc(t)}</a>`;
-const tags=i=>(i.why||[]).map(w=>`<span class="t">${esc(w)}</span>`).join("");
-const frame=h=>`<iframe class="mailframe" sandbox="allow-popups allow-popups-to-escape-sandbox" csp="default-src 'none'; img-src https: data:; style-src 'unsafe-inline'; font-src https: data:" referrerpolicy="no-referrer" srcdoc="${esc('<base target="_blank"><style>body{margin:0;padding:8px;background:#fff;color:#111;font-family:system-ui,sans-serif;word-break:break-word}img{max-width:100%;height:auto}</style>'+h)}"></iframe>`;
-const det=(sum,body,url,h)=>`<details><summary>${sum}</summary>${h?frame(h):`<div class="body">${esc(body||"(no text)")}</div>`}<div class="m"><a href="${esc(safe(url))}" target="_blank" rel="noopener">Open in Gmail ↗</a></div></details>`;
-const row=(i,inner)=>i.id?`<li class="row" data-id="${esc(i.id)}" data-bk="${esc(bkOf(i))}" data-name="${esc(i.nm||i.from||"")}"><input type="checkbox" class="rd" title="Done" aria-label="Mark as done"><div class="grow">${inner}</div><div class="acts"><button class="blk" title="Filter: never show from this sender/source">🚫<span class="lb"> Filter</span></button><button class="x" title="Remove" aria-label="Remove">✕</button></div></li>`:`<li>${inner}</li>`;
-const when=ts=>{if(!ts)return "";const d=new Date(ts*1000),n=new Date(),same=d.toDateString()===n.toDateString();
-  return same?d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}):d.toLocaleDateString([], {month:"short",day:"numeric",...(d.getFullYear()!==n.getFullYear()?{year:"numeric"}:{})})+", "+d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})};
-const mail=i=>row(i,det(`<b>${esc(i.title)}</b> <span class="d">· ${esc(when(i.ts))}</span><div class="m">${esc(i.from)}${i.snippet?" — "+esc(i.snippet):""}</div>${tags(i)}`,i.body,i.url,i.html));
-const list=(a,f,e="Nothing new")=>{a=(a||[]).filter(x=>!hidden(x));return a.length?`<ul>${a.map(f).join("")}</ul>`:`<p class="empty">${e}</p>`};
-const sec=(t,b,c="",id="")=>`<section class="${c}" ${id?`id="${id}"`:""}><h2>${t}</h2>${b}</section>`;
-const fmt=e=>e.date?new Date(e.date+"T12:00").toLocaleDateString([], {month:"short",day:"numeric",year:"numeric"}):"TBD";
-
-function rerenderAll(){
-  const B=D.briefing||{};let o="";
-  o+=sec("✅ To-do — important mail",list(D.todos,mail,"Inbox looks clear"),"wide");
-  o+=sec("🏢 Business",Object.values(D.business||{}).map(b=>`<h3>${esc(b.label)}</h3>${list(b.items,mail,"Nothing important")}`).join("")||'<p class="empty">No business accounts connected</p>',"wide");
-  o+=sec("☀️ Briefing",`<h3>Morning Brew</h3>${list(B.morning_brew,mail,"Not arrived yet")}<h3>Baby development</h3>${list(B.baby,mail)}<h3>Do317</h3>${list(B.do317,mail)}`,"wide");
-  o+=sec("📅 Calendar",'<div id="calBody"></div>',"wide");
-  o+=sec("🎵 Events — next 8 months",list(D.events,e=>{const meta=`<div class="m"><span class="d">${fmt(e)}</span> · ${esc(e.venue)} <span class="t">${esc(e.source)}</span></div>`;return row(e,e.body?det(`<b>${esc(e.title)}</b>${meta}`,e.body,e.url,e.html):`${link(e.title,e.url)}${meta}`)},"No events found"),"wide");
-  o+=sec("🍽️ New & interesting restaurants",list(D.restaurants,r=>row(r,`${link(r.title,r.url)}<div class="m">${esc(r.summary)} <span class="t">${esc(r.source)}</span></div>`),"No restaurant news"),"wide");
-  if(D.notes&&D.notes.length)o+=sec("Notes",`<p class="m">${D.notes.map(esc).join("<br>")}</p>`,"wide");
-  $("m").innerHTML=o;renderCal();updateHid();
+/* ---------- Gmail links: open the Gmail app on Android ---------- */
+const ANDROID=/Android/i.test(navigator.userAgent);
+function mailLink(u){
+  const m=/^https:\/\/mail\.google\.com\/mail\/u\/(\d+)\/#all\/([0-9a-zA-Z]+)$/.exec(u||"");
+  if(!m||!ANDROID||ls.get("dopen")==="web")return {href:u,intent:false};
+  return {href:`intent://mail.google.com/mail/u/${m[1]}/#all/${m[2]}#Intent;scheme=https;package=com.google.android.gm;S.browser_fallback_url=${encodeURIComponent(u)};end`,intent:true};
 }
+const aTag=(u,inner,cls="")=>{const l=mailLink(u);const ok=l.intent?l.href:safe(l.href);return `<a ${cls?`class="${cls}" `:""}href="${esc(ok)}"${l.intent?"":' target="_blank" rel="noopener"'}>${inner}</a>`};
+const link=(t,u)=>aTag(u,esc(t));
+
+/* ---------- rendering helpers ---------- */
+const tags=i=>(i.why||[]).map(w=>`<span class="t">${esc(w)}</span>`).join("");
+const frame=h=>`<iframe class="mailframe" onload="fitFrame(this)" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" csp="default-src 'none'; img-src https: data:; style-src 'unsafe-inline'; font-src https: data:" referrerpolicy="no-referrer" srcdoc="${esc('<base target="_blank"><style>body{margin:0 auto;max-width:760px;padding:12px;background:#fff;color:#111;font-family:system-ui,sans-serif;word-break:break-word}img{max-width:100%;height:auto}</style>'+h)}"></iframe>`;
+/* size the sandboxed email frame to its content (scripts stay blocked: no allow-scripts) */
+function fitFrame(f){try{const d=f.contentDocument,fit=()=>{f.style.height=Math.max(120,d.documentElement.scrollHeight+6)+"px"};fit();
+  if(window.ResizeObserver)new ResizeObserver(fit).observe(d.documentElement);d.querySelectorAll("img").forEach(i=>i.addEventListener("load",fit))}catch(e){}}
+const exp=(body,url,h,label)=>`<div class="exp">${h?frame(h):`<div class="body">${esc(body||"(no text)")}</div>`}${aTag(url,esc(label||"Open in Gmail ↗"),"openlink")}</div>`;
+const row=(i,headHtml,bodyHtml="")=>{
+  const attrs=`data-id="${esc(i.id)}" data-bk="${esc(bkOf(i))}" data-name="${esc(i.nm||i.from||"")}"`;
+  const inner=`<input type="checkbox" class="rd" title="Done" aria-label="Mark as done"><div class="grow">${headHtml}</div><div class="acts"><button class="blk" title="Filter: never show from this sender/source">🚫<span class="lb"> Filter</span></button><button class="x" title="Remove" aria-label="Remove">✕</button></div>`;
+  return bodyHtml?`<li ${attrs}><details><summary class="row">${inner}</summary>${bodyHtml}</details></li>`:`<li class="row" ${attrs}>${inner}</li>`;
+};
+const when=ts=>{if(!ts)return "";const d=new Date(ts*1000),n=new Date(),same=d.toDateString()===n.toDateString();
+  const t=d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+  return same?t:d.toLocaleDateString([], {month:"short",day:"numeric",...(d.getFullYear()!==n.getFullYear()?{year:"numeric"}:{})})+", "+t};
+const mail=i=>row(i,`<b>${esc(i.title)}</b> <span class="d">· ${esc(when(i.ts))}</span><div class="m">${esc(i.from)}${i.snippet?" — "+esc(i.snippet):""}</div>${tags(i)}`,exp(i.body,i.url,i.html));
+const art=i=>row(i,`<b>${esc(i.title)}</b> <span class="d">· ${esc(i.source)}${i.ts?" · "+esc(when(i.ts)):""}</span><div class="m">${esc((i.summary||"").slice(0,150))}</div>`,exp(i.text||i.summary,i.url,null,"Read the full article ↗"));
+const list=(a,f,e="Nothing new")=>{a=vis(a);return a.length?`<ul>${a.map(f).join("")}</ul>`:`<p class="empty">${e}</p>`};
+const head=(ic,t,n,box)=>`<div class="sh"><span class="ic">${ic}</span><h2>${t}</h2>${n==null?"":`<span class="cnt"${box?" data-count":""}>${n}</span>`}</div>`;
+const fmtD=e=>e.date?new Date(e.date+"T12:00"):null;
+
+let evAll=false;
+function rerenderAll(){
+  /* important mail: all three inboxes, non-news */
+  const groups=[["Personal",D.todos],...Object.values(D.business||{}).map(b=>[b.label,b.items])];
+  const tot=groups.reduce((n,g)=>n+vis(g[1]).length,0);
+  $("sImp").innerHTML=head("✉️","Important mail",tot,1)+groups.map(([l,a])=>`<div data-box><h3>${esc(l)} <span class="cnt" data-count>${vis(a).length}</span></h3>${list(a,mail,"Nothing important")}</div>`).join("");
+  /* read: email + RSS sources */
+  const R=D.read||{};
+  const src=(ic,label,a,f,empty)=>`<div class="src" data-box><div class="sh"><span class="ic">${ic}</span><h3>${label}</h3><span class="cnt" data-count>${vis(a).length}</span></div>${list(a,f,empty)}</div>`;
+  const rTot=["brew","world","local","restaurants","baby"].reduce((n,k)=>n+vis(R[k]).length,0);
+  $("sRead").innerHTML=head("📰","Read",rTot,1)+`<div class="srcs">`+
+    src("☕","Morning Brew",R.brew,mail,"Not arrived yet")+src("🌍","World",R.world,art,"No stories")+src("📍","Local",R.local,art,"No stories")+
+    src("🍽️","Indy restaurants",R.restaurants,art,"No restaurant news")+src("👶","Baby",R.baby,mail,"Nothing new")+`</div>`;
+  /* events: concerts + email events + Do317 */
+  const evs=vis(D.events),shown=evAll?evs:evs.slice(0,10);
+  const evRow=e=>{const d=fmtD(e),meta=`<div class="m">${esc(e.venue||"")} <span class="t">${esc(e.source)}</span></div>`;
+    const badge=d?`<div class="badge"><b>${d.toLocaleDateString([], {month:"short"})}</b><span>${d.getDate()}</span></div>`:`<div class="badge"><b>TBD</b><span>–</span></div>`;
+    const t=e.time?` <span class="d">· ${new Date(e.date+"T"+e.time).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}</span>`:"";
+    const hd=`<div class="evr">${badge}<div class="grow">${e.body?`<b>${esc(e.title)}</b>`:link(e.title,e.url).replace("<a ",'<a style="font-weight:640;color:var(--fg)" ')}${t}${meta}</div></div>`;
+    return row(e,hd,e.body?exp(e.body,e.url,e.html):"")};
+  $("sEv").innerHTML=head("🎶","Events nearby",evs.length)+(shown.length?`<ul>${shown.map(evRow).join("")}</ul>`:'<p class="empty">No events found</p>')+
+    (evs.length>10?`<button class="btn morebtn" id="evMore">${evAll?"Show fewer":`Show all ${evs.length}`}</button>`:"")+
+    (vis(D.do317).length?`<h3 style="margin-top:20px">From Do317</h3>${list(D.do317,mail)}`:"");
+  if(D.notes&&D.notes.length){$("sNotes").hidden=false;$("sNotes").innerHTML=head("ℹ️","Notes")+`<p class="m">${D.notes.map(esc).join("<br>")}</p>`}
+  renderCal();updateHid();
+}
+function refreshCounts(){document.querySelectorAll("[data-count]").forEach(c=>{const box=c.closest("[data-box]");if(box)c.textContent=box.querySelectorAll("li[data-id]").length})
+  const imp=document.querySelector("#sImp>.sh .cnt");if(imp)imp.textContent=document.querySelectorAll("#sImp li[data-id]").length}
 
 /* ---------- calendar ---------- */
 let showPot=true,cm=new Date(new Date().getFullYear(),new Date().getMonth(),1),selDay=null;
-const pad=n=>String(n).padStart(2,"0"),dkey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 function calEvents(){
   const real=(D.calendar||[]).map(e=>({...e,pot:false}));
-  const pot=showPot?(D.events||[]).filter(e=>e.date&&!hidden(e)).map(e=>({id:e.id,bk:e.bk,title:e.title,start:e.time?e.date+"T"+e.time:e.date,end:null,allDay:!e.time,cal:e.venue||e.source,url:e.url,loc:e.venue||"",pot:true})):[];
+  const pot=showPot?vis(D.events).filter(e=>e.date).map(e=>({id:e.id,bk:e.bk,title:e.title,start:e.time?e.date+"T"+e.time:e.date,end:null,allDay:!e.time,cal:e.venue||e.source,url:e.url,loc:e.venue||"",pot:true})):[];
   return real.concat(pot);
 }
 function dayMap(evs){
@@ -157,10 +260,10 @@ function addUrl(e){
   return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(e.title)+"&dates="+dates+"&location="+encodeURIComponent(e.loc||"")+"&details="+encodeURIComponent(e.url||"");
 }
 function renderCal(){
-  const host=$("calBody");if(!host)return;
+  const host=$("sCal");if(!host)return;
   const evs=calEvents(),mp=dayMap(evs),today=dkey(new Date());selDay=selDay||today;
   const first=new Date(cm),start=new Date(first);start.setDate(1-first.getDay());
-  const lastOk=new Date(new Date().getFullYear(),new Date().getMonth()+9,1),prevOk=cm>new Date(new Date().getFullYear(),new Date().getMonth(),1);
+  const now=new Date(),lastOk=new Date(now.getFullYear(),now.getMonth()+9,1),prevOk=cm>new Date(now.getFullYear(),now.getMonth(),1);
   let cells="";for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=dkey(d),es=mp[k]||[];
     if(i>=35&&d.getMonth()!==cm.getMonth())break;
     const dots=es.slice(0,8).map(e=>`<i class="${e.pot?"p":""}"></i>`).join("");
@@ -169,33 +272,68 @@ function renderCal(){
   const sel=mp[selDay]||[];
   const detail=sel.length?sel.map(e=>`<div class="ev ${e.pot?"p":""}">${e.pot?`<button class="x calx" data-id="${esc(e.id)}" style="float:right" title="Remove" aria-label="Remove">✕</button>`:""}<b>${esc(e.title)}</b>${e.pot?'<span class="tag">POTENTIAL</span>':""}<div class="m">${tm(e)}${e.cal?" · "+esc(e.cal):""}${e.loc&&e.loc!==e.cal?" · "+esc(e.loc):""}</div><div class="m">${e.url&&e.url!=="#"?link(e.pot?"Tickets / info ↗":"Open in Calendar ↗",e.url):""}${e.pot?` · <a href="${esc(addUrl(e))}" target="_blank" rel="noopener">+ Add to Google Calendar</a>`:""}</div></div>`).join(""):'<p class="empty">Nothing on this day</p>';
   const dl=new Date(selDay+"T12:00").toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"});
-  const nowIso=new Date();const up=(D.calendar||[]).filter(e=>new Date(e.allDay?e.end+"T00:00":e.end||e.start)>=nowIso).slice(0,6);
-  host.innerHTML=`<div class="legend"><span><i class="dot"></i>On your calendar</span><span><i class="dot p"></i>Potential (concerts &amp; email events)</span><label><input type="checkbox" id="potT" ${showPot?"checked":""}> Show potential</label></div>
-  <div class="nav"><button class="btn" id="pm" ${prevOk?"":"disabled"}>‹</button><b>${cm.toLocaleDateString([], {month:"long",year:"numeric"})}</b><button class="btn" id="nm" ${cm<lastOk&&new Date(cm.getFullYear(),cm.getMonth()+1,1)<lastOk?"":"disabled"}>›</button></div>
+  host.innerHTML=head("📅","Calendar")+`<div class="legend"><span><i class="dot"></i>On your calendar</span><span><i class="dot p"></i>Potential (concerts &amp; email events)</span><label><input type="checkbox" id="potT" ${showPot?"checked":""}> Show potential</label></div>
+  <div class="nav"><button class="btn" id="pm" ${prevOk?"":"disabled"}>‹</button><b>${cm.toLocaleDateString([], {month:"long",year:"numeric"})}</b><button class="btn" id="nm" ${new Date(cm.getFullYear(),cm.getMonth()+1,1)<lastOk?"":"disabled"}>›</button></div>
   <div class="grid">${["S","M","T","W","T","F","S"].map(x=>`<div class="dow">${x}</div>`).join("")}${cells}</div>
-  <h3>${esc(dl)}</h3>${detail}
+  <h3 style="margin-top:16px">${esc(dl)}</h3>${detail}
   ${(D.calendar||[]).length?"":'<p class="m">No Google Calendar events loaded. See the notes below if the calendar permission is missing.</p>'}`;
 }
 
-/* ---------- hidden panel ---------- */
+/* ---------- weather (live, from Open-Meteo, in the browser) ---------- */
+const WMO=c=>c===0?["☀️","Clear"]:c<=2?["🌤️","Mostly clear"]:c===3?["☁️","Overcast"]:c<=48?["🌫️","Fog"]:c<=57?["🌦️","Drizzle"]:c<=67?["🌧️","Rain"]:c<=77?["🌨️","Snow"]:c<=82?["🌧️","Showers"]:c<=86?["🌨️","Snow showers"]:["⛈️","Thunderstorms"];
+async function loadWeather(){
+  const w=D.weather||{},el=$("wx");
+  try{
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${w.lat}&longitude=${w.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=${encodeURIComponent(w.tz||"auto")}&forecast_days=5`;
+    const r=await fetch(u);if(!r.ok)throw 0;const j=await r.json(),c=j.current,[ic,tx]=WMO(c.weather_code);
+    const [lh,lm]=(D.workout.leave_by||"06:45").split(":").map(Number),hr=lh+(lm>=30?1:0),i=j.hourly.time.indexOf(dkey(new Date())+"T"+pad(hr)+":00");
+    const run=i>=0?`<div class="wx-run">🏃 At ${lh}:${pad(lm)}: <b>${Math.round(j.hourly.temperature_2m[i])}°F</b> · ${j.hourly.precipitation_probability[i]??0}% chance of rain</div>`:"";
+    el.innerHTML=`<div class="wx-top"><div><div class="eyebrow">${esc(w.label||"Weather")} · now</div><div class="temp">${Math.round(c.temperature_2m)}°</div><div class="cond">${tx} · feels ${Math.round(c.apparent_temperature)}° · wind ${Math.round(c.wind_speed_10m)} mph</div></div><div class="wx-ico">${ic}</div></div>${run}
+    <div class="wx-days">${j.daily.time.map((d,k)=>`<div><b>${k?new Date(d+"T12:00").toLocaleDateString([], {weekday:"short"}):"Today"}</b><span>${WMO(j.daily.weather_code[k])[0]}</span>${Math.round(j.daily.temperature_2m_max[k])}° <small style="opacity:.7">${Math.round(j.daily.temperature_2m_min[k])}°</small></div>`).join("")}</div>`;
+  }catch(e){el.innerHTML=`<div class="eyebrow">Weather</div><p>Weather unavailable right now.</p>`}
+}
+
+/* ---------- 6:45 workout reminder ---------- */
+const C=D.content||{verses:[],lead:[],nudges:[]};
+const doy=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/864e5);
+function renderWorkout(){
+  const el=$("wk"),now=new Date(),[h,m]=(D.workout.leave_by||"06:45").split(":").map(Number),t=new Date(now);t.setHours(h,m,0,0);
+  const mins=Math.round((t-now)/6e4),key="wk-"+dkey(now),done=ls.get(key)==="1",lt=`${h}:${pad(m)}`;
+  const nudges=C.nudges.length?C.nudges:["Go."],why=nudges[doy%nudges.length];
+  let cls="",line;
+  if(done){cls="done";line="✅ Out the door. You won the morning.";}
+  else if(mins>90)line=`Starts in ${Math.floor(mins/60)}h ${mins%60}m. Lay your gear out.`;
+  else if(mins>15)line=`${mins} min until ${lt}. Get dressed, shoes by the door.`;
+  else if(mins>0)line=`${mins} min. Shoes on. Go.`;
+  else if(mins>-45){cls="late";line=`${-mins} min past ${lt}. Leave now. Every minute you wait is how 7:30 happens.`}
+  else if(now.getHours()<12){cls="late";line=`Running late. A late workout still beats none, but tomorrow it's ${lt}.`}
+  else line=`Tomorrow: out the door by ${lt}.`;
+  el.className="card wk "+cls;
+  el.innerHTML=`<div class="eyebrow">Morning mission</div><h2 class="wk-big">${done?"Done. Great start.":`Out the door by ${lt}`}</h2><div class="wk-count">${esc(line)}</div>
+  <p class="wk-why">${done?"The rest of your day just got easier.":`You'll have a better day if you leave at ${lt}, not 7:30 or 8. ${esc(why)}`}</p>
+  <button class="wk-btn" id="wkb">${done?"Undo":"I'm out the door ✓"}</button>`;
+  $("wkb").onclick=()=>{done?ls.del(key):ls.set(key,"1");renderWorkout()};
+}
+
+/* ---------- verse + lead ---------- */
+let vOff=0,lOff=0;
+function renderDaily(){
+  const V=C.verses,L=C.lead;
+  if(V.length){const v=V[(doy+vOff)%V.length];$("sVerse").innerHTML=head("📖","Verse of the day")+`<blockquote>“${esc(v.text)}”</blockquote><cite>${esc(v.ref)} (KJV)</cite> <button class="btn" id="vNext" style="float:right" title="Another verse">↻</button>`}
+  else $("sVerse").hidden=true;
+  if(L.length)$("sLead").innerHTML=head("🧭","Lead her well")+`<p>${esc(L[(doy+lOff)%L.length])}</p><button class="btn" id="lNext" title="Another">↻ Another</button>`;
+  else $("sLead").hidden=true;
+}
+
+/* ---------- hidden panel, toast ---------- */
 function updateHid(){
   $("hid").textContent=`Hidden (${S.blocked.length})`;
   $("hidList").innerHTML=S.blocked.length?"<ul>"+S.blocked.map(b=>`<li class="row"><div class="grow"><b>${esc(b.n||b.a)}</b><div class="m">${esc(b.a)}</div></div><button class="btn" data-un="${esc(b.a)}">Restore</button></li>`).join("")+"</ul>":'<p class="empty">No filtered senders</p>';
   $("readInfo").textContent=`${Object.keys(S.read).length} done · ${Object.keys(S.gone).length} removed (auto-cleared after 60 days).`;
 }
-
-/* ---------- toast ---------- */
 let tt;function toast(html,ms=7000){const t=$("toast");t.innerHTML=html;t.style.display="flex";clearTimeout(tt);tt=setTimeout(()=>t.style.display="none",ms)}
-function emptyIfNone(ul){if(ul&&!ul.querySelector("li")){const p=document.createElement("p");p.className="empty";p.textContent="All clear ✓";ul.replaceWith(p)}}
-
-/* ---------- events ---------- */
-document.addEventListener("change",e=>{
-  if(e.target.classList.contains("rd")){const li=e.target.closest("li"),id=li.dataset.id;mutate(readFn(id,true));const ul=li.closest("ul");
-    li.style.transition="opacity .25s";li.style.opacity=0;setTimeout(()=>{li.remove();emptyIfNone(ul)},250);
-    toast(`Marked done <button id="undo">Undo</button>`);$("undo").onclick=()=>{mutate(readFn(id,false));rerenderAll();$("toast").style.display="none"}}
-  if(e.target.id==="potT"){showPot=e.target.checked;renderCal()}
-});
-function hideRows(pred){document.querySelectorAll("li.row").forEach(x=>{if(pred(x)){const ul=x.closest("ul");x.remove();emptyIfNone(ul)}})}
+function emptyIfNone(ul){if(ul&&!ul.querySelector("li")){const p=document.createElement("p");p.className="empty";p.textContent="All clear ✓";ul.replaceWith(p)}refreshCounts()}
+function hideRows(pred){document.querySelectorAll("li[data-id]").forEach(x=>{if(pred(x)){const ul=x.closest("ul");x.remove();emptyIfNone(ul)}})}
 function blockToast(bk,name){
   mutate(blockFn(bk,name));hideRows(x=>x.dataset.bk===bk);
   const isAddr=bk.includes("@"),dom=isAddr?"@"+bk.split("@").pop():"";const canDom=isAddr&&!FREE.test(dom+".");
@@ -204,7 +342,20 @@ function blockToast(bk,name){
   $("undo").onclick=()=>{mutate(unblockFn(bk));rerenderAll();$("toast").style.display="none"};
   if(canDom)$("dom").onclick=()=>{mutate(blockFn(dom,"Everyone at "+dom));rerenderAll();toast("Blocked "+esc(dom),3500)};
 }
+
+/* ---------- events ---------- */
+document.addEventListener("toggle",e=>{const d=e.target;if(d.tagName!=="DETAILS")return;
+  const s=d.closest(".src");if(s)s.classList.toggle("full",!!s.querySelector("details[open]"))},true);
+document.addEventListener("change",e=>{
+  if(e.target.id==="potT"){showPot=e.target.checked;renderCal()}
+  if(e.target.id==="dopen"){ls.set("dopen",e.target.value);rerenderAll()}
+});
 document.addEventListener("click",e=>{
+  if(e.target.closest("summary")&&e.target.closest(".rd,.acts"))e.preventDefault();
+  const rd=e.target.closest(".rd");
+  if(rd){const li=rd.closest("li"),id=li.dataset.id;rd.checked=true;mutate(readFn(id,true));const ul=li.closest("ul");
+    li.style.transition="opacity .25s";li.style.opacity=0;setTimeout(()=>{li.remove();emptyIfNone(ul)},250);
+    toast(`Marked done <button id="undo">Undo</button>`);$("undo").onclick=()=>{mutate(readFn(id,false));rerenderAll();$("toast").style.display="none"};return}
   const xb=e.target.closest(".x");
   if(xb&&xb.classList.contains("calx")){const id=xb.dataset.id;mutate(goneFn(id,true));rerenderAll();toast(`Removed <button id="undo">Undo</button>`);$("undo").onclick=()=>{mutate(goneFn(id,false));rerenderAll();$("toast").style.display="none"};return}
   if(xb){const li=xb.closest("li"),id=li.dataset.id;mutate(goneFn(id,true));const ul=li.closest("ul");li.remove();emptyIfNone(ul);
@@ -216,17 +367,22 @@ document.addEventListener("click",e=>{
   const day=e.target.closest(".day");if(day){selDay=day.dataset.k;renderCal()}
   if(e.target.id==="pm"||e.target.id==="nm"){cm=new Date(cm.getFullYear(),cm.getMonth()+(e.target.id==="nm"?1:-1),1);
     const n=new Date();selDay=(cm.getFullYear()===n.getFullYear()&&cm.getMonth()===n.getMonth())?dkey(n):dkey(cm);renderCal()}
+  if(e.target.id==="evMore"){evAll=!evAll;rerenderAll()}
+  if(e.target.id==="vNext"){vOff++;renderDaily()}
+  if(e.target.id==="lNext"){lOff++;renderDaily()}
 });
 $("hid").onclick=()=>{updateHid();$("dHid").showModal()};
 $("clearRead").onclick=()=>{mutate(s=>{s.read={}});rerenderAll()};
 $("clearGone").onclick=()=>{mutate(s=>{s.gone={}});rerenderAll()};
-$("cfg").onclick=()=>{$("tok").value="";setSync(token()?sync:"not connected (changes stay on this device)");$("dCfg").showModal()};
+$("cfg").onclick=()=>{$("tok").value="";$("dopen").value=ls.get("dopen")||"app";setSync(token()?sync:"not connected (changes stay on this device)");$("dCfg").showModal()};
 $("saveTok").onclick=async()=>{const v=$("tok").value.trim();if(!v)return;ls.set("dtoken",v);setSync("connecting…");await pull();rerenderAll()};
 $("rmTok").onclick=()=>{ls.del("dtoken");setSync("not connected (changes stay on this device)")};
 
 const h=new Date().getHours();
 $("hi").textContent=(h<12?"Good morning":h<18?"Good afternoon":"Good evening")+", Jeff";
+$("date").textContent=new Date().toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"});
 $("gen").textContent="Updated "+new Date(D.generated*1000).toLocaleString([], {dateStyle:"medium",timeStyle:"short"});
-rerenderAll();
+rerenderAll();renderWorkout();renderDaily();loadWeather();
+setInterval(renderWorkout,30000);
 if(token())pull().then(rerenderAll);
 </script></body></html>
