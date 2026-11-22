@@ -4,7 +4,10 @@ on:
     branches: [main]
     paths-ignore: [state.json]
   schedule:
-    - cron: "30 10 * * *"   # ~5:30am Indianapolis (EST); 6:30am in summer
+    # 6am Indianapolis year-round: GitHub cron is UTC-only, so fire at both 10:00 and 11:00 UTC
+    # and let the "gate" job let through only the run that lands in the 6am hour local time.
+    - cron: "0 10 * * *"
+    - cron: "0 11 * * *"
   workflow_dispatch:
 permissions:
   contents: read
@@ -12,7 +15,19 @@ permissions:
   id-token: write
 concurrency: { group: pages, cancel-in-progress: true }
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.g.outputs.run }}
+    steps:
+      - id: g
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          h=$(TZ=America/Indiana/Indianapolis date +%H)
+          if [ "$h" = "06" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; echo "Local hour is $h, skipping"; fi
   build:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +51,8 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
   deploy:
-    needs: build
+    needs: [gate, build]
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
     environment: { name: github-pages, url: "${{ steps.d.outputs.page_url }}" }
     steps:
