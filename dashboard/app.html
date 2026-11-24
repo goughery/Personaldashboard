@@ -4,11 +4,11 @@
 <style>
 :root{
   --bg:#f2f3f8;--card:#fff;--fg:#141821;--mut:#667085;--acc:#3b6df0;--bd:#e6e8ee;--soft:#f6f7fb;--tag:#eaf0ff;
-  --pot:#b86e00;--potbg:#fff3dc;--ok:#1a9d5b;--shadow:0 1px 2px rgba(16,24,40,.05),0 10px 28px rgba(16,24,40,.07);
+  --pot:#b86e00;--potbg:#fff3dc;--ok:#1a9d5b;--a0:#1a9d5b;--a1:#e08a00;--a2:#8b94a5;--a0bg:#e2f6ec;--a1bg:#fff1d6;--a2bg:#eceef3;--shadow:0 1px 2px rgba(16,24,40,.05),0 10px 28px rgba(16,24,40,.07);
   --r:18px;--serif:Georgia,"Iowan Old Style","Times New Roman",serif}
 @media(prefers-color-scheme:dark){:root{
   --bg:#0b0d12;--card:#141821;--fg:#eceff6;--mut:#9aa4b5;--acc:#7aa2ff;--bd:#232937;--soft:#1a1f2b;--tag:#1d2745;
-  --pot:#f2b552;--potbg:#33280f;--ok:#46d28b;--shadow:0 1px 2px rgba(0,0,0,.45),0 10px 28px rgba(0,0,0,.35)}}
+  --pot:#f2b552;--potbg:#33280f;--ok:#46d28b;--a0:#46d28b;--a1:#f2b552;--a2:#8b94a5;--a0bg:#12392a;--a1bg:#3a2d10;--a2bg:#222836;--shadow:0 1px 2px rgba(0,0,0,.45),0 10px 28px rgba(0,0,0,.35)}}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
   background-image:radial-gradient(1200px 500px at 85% -10%,rgba(91,124,255,.13),transparent 60%),radial-gradient(900px 400px at -10% 0%,rgba(255,122,69,.10),transparent 55%);background-repeat:no-repeat}
@@ -38,6 +38,12 @@ summary{cursor:pointer;list-style:none;outline:none}summary::-webkit-details-mar
 summary b{color:var(--fg);font-weight:640;line-height:1.35}summary:hover b{color:var(--acc)}details[open] summary b{color:var(--acc)}
 .body{white-space:pre-wrap;word-break:break-word;margin:10px 0;padding:14px 16px;background:var(--soft);border:1px solid var(--bd);border-radius:12px;font-size:.92rem;line-height:1.6;max-height:70vh;overflow:auto}
 .mailframe{display:block;width:100%;height:320px;border:1px solid var(--bd);border-radius:12px;margin:10px 0;background:#fff}
+.age{display:inline-block;font-size:.66rem;font-weight:750;letter-spacing:.04em;text-transform:uppercase;border-radius:99px;padding:1px 8px;margin-right:6px;vertical-align:1px}
+.age.a0{background:var(--a0bg);color:var(--a0)}.age.a1{background:var(--a1bg);color:var(--a1)}.age.a2{background:var(--a2bg);color:var(--a2)}
+li[data-age]{position:relative;padding-left:14px}
+li[data-age]::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:4px;background:var(--a2)}
+li[data-age="0"]::before{background:var(--a0)}li[data-age="1"]::before{background:var(--a1)}
+.dot.a0{background:var(--a0)}.dot.a1{background:var(--a1)}.dot.a2{background:var(--a2)}
 .openlink{display:inline-block;margin:2px 0 4px;font-size:.84rem}.exp{margin-top:6px}
 .ai{margin:10px 0 6px;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,var(--tag),var(--soft));border:1px solid var(--bd)}
 .ai-h{font-size:.72rem;font-weight:750;letter-spacing:.07em;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
@@ -222,17 +228,23 @@ const exp=(body,url,h,label,ai)=>{
   const aiBox=ai?`<div class="ai"><div class="ai-h">✨ AI summary</div><div class="ai-b">${esc(ai)}</div></div>`:"";
   const full=h?frame(h):ai?`<details class="fulltxt"><summary>Show full text</summary><div class="body">${esc(body||"(no text)")}</div></details>`:`<div class="body">${esc(body||"(no text)")}</div>`;
   return `<div class="exp">${aiBox}${ai?link:""}${full}${ai?"":link}</div>`};
+/* news age by calendar day in the viewer's time zone: 0 today (green), 1 yesterday (amber), 2+ older (gray) */
+function ageOf(ts){if(!ts)return null;const n=new Date(),s0=new Date(n.getFullYear(),n.getMonth(),n.getDate()),t=new Date(ts*1000),s1=new Date(t.getFullYear(),t.getMonth(),t.getDate());
+  const d=Math.round((s0-s1)/864e5);if(d<0)return {n:0,label:"Today"};return d===0?{n:0,label:"Today"}:d===1?{n:1,label:"Yesterday"}:{n:2,label:d<7?d+" days ago":t.toLocaleDateString([], {month:"short",day:"numeric"})}}
+const ageTag=ts=>{const a=ageOf(ts);return a?`<span class="age a${a.n}">${a.label}</span>`:""};
+const ageAttr=ts=>{const a=ageOf(ts);return a?` data-age="${a.n}"`:""};
 const row=(i,headHtml,bodyHtml="")=>{
-  const attrs=`data-id="${esc(i.id)}" data-bk="${esc(bkOf(i))}" data-name="${esc(i.nm||i.from||"")}"`;
+  const attrs=`data-id="${esc(i.id)}" data-bk="${esc(bkOf(i))}" data-name="${esc(i.nm||i.from||"")}"${i._age?ageAttr(i.ts):""}`;
   const inner=`<input type="checkbox" class="rd" title="Done" aria-label="Mark as done"><div class="grow">${headHtml}</div><div class="acts"><button class="blk" title="Filter: never show from this sender/source">🚫<span class="lb"> Filter</span></button><button class="x" title="Remove" aria-label="Remove">✕</button></div>`;
   return bodyHtml?`<li ${attrs}><details><summary class="row">${inner}</summary>${bodyHtml}</details></li>`:`<li class="row" ${attrs}>${inner}</li>`;
 };
 const when=ts=>{if(!ts)return "";const d=new Date(ts*1000),n=new Date(),same=d.toDateString()===n.toDateString();
   const t=d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
   return same?t:d.toLocaleDateString([], {month:"short",day:"numeric",...(d.getFullYear()!==n.getFullYear()?{year:"numeric"}:{})})+", "+t};
-const mail=i=>row(i,`<b>${esc(i.title)}</b> <span class="d">· ${esc(when(i.ts))}</span><div class="m">${esc(i.from)}${i.snippet?" — "+esc(i.snippet):""}</div>${tags(i)}`,exp(i.body,i.url,i.html,null,i.ai));
-const art=i=>row(i,`<b>${esc(i.title)}</b> <span class="d">· ${esc(i.source)}${i.ts?" · "+esc(when(i.ts)):""}</span><div class="m">${esc((i.summary||"").slice(0,150))}</div>`,exp(i.text||i.summary,i.url,null,"Read the full article ↗",i.ai));
-const list=(a,f,e="Nothing new")=>{a=vis(a);return a.length?`<ul>${a.map(f).join("")}</ul>`:`<p class="empty">${e}</p>`};
+const mail=(i,age)=>row(i,`${age?ageTag(i.ts):""}<b>${esc(i.title)}</b> <span class="d">· ${esc(when(i.ts))}</span><div class="m">${esc(i.from)}${i.snippet?" — "+esc(i.snippet):""}</div>${tags(i)}`,exp(i.body,i.url,i.html,null,i.ai));
+const art=i=>row(Object.assign(i,{_age:1}),`${ageTag(i.ts)}<b>${esc(i.title)}</b> <span class="d">· ${esc(i.source)}${i.ts?" · "+esc(when(i.ts)):""}</span><div class="m">${esc((i.summary||"").slice(0,150))}</div>`,exp(i.text||i.summary,i.url,null,"Read the full article ↗",i.ai));
+const mailR=i=>mail(Object.assign(i,{_age:1}),1);
+const list=(a,f,e="Nothing new")=>{a=vis(a);return a.length?`<ul>${a.map(x=>f(x)).join("")}</ul>`:`<p class="empty">${e}</p>`};
 const head=(ic,t,n,box)=>`<div class="sh"><span class="ic">${ic}</span><h2>${t}</h2>${n==null?"":`<span class="cnt"${box?" data-count":""}>${n}</span>`}</div>`;
 const fmtD=e=>e.date?new Date(e.date+"T12:00"):null;
 
@@ -246,9 +258,9 @@ function rerenderAll(){
   const R=D.read||{};
   const src=(ic,label,a,f,empty)=>`<div class="src" data-box><div class="sh"><span class="ic">${ic}</span><h3>${label}</h3><span class="cnt" data-count>${vis(a).length}</span></div>${list(a,f,empty)}</div>`;
   const rTot=["brew","world","local","restaurants","baby"].reduce((n,k)=>n+vis(R[k]).length,0);
-  $("sRead").innerHTML=head("📰","Read",rTot,1)+`<div class="srcs">`+
-    src("☕","Morning Brew",R.brew,mail,"Not arrived yet")+src("🌍","World",R.world,art,"No stories")+src("📍","Local",R.local,art,"No stories")+
-    src("🍽️","Indy restaurants",R.restaurants,art,"No restaurant news")+src("👶","Baby",R.baby,mail,"Nothing new")+`</div>`;
+  $("sRead").innerHTML=head("📰","Read",rTot,1)+`<div class="legend"><span><i class="dot a0"></i>Today</span><span><i class="dot a1"></i>Yesterday</span><span><i class="dot a2"></i>Older</span></div><div class="srcs">`+
+    src("☕","Morning Brew",R.brew,mailR,"Not arrived yet")+src("🌍","World",R.world,art,"No stories")+src("📍","Local",R.local,art,"No stories")+
+    src("🍽️","Indy restaurants",R.restaurants,art,"No restaurant news")+src("👶","Baby",R.baby,mailR,"Nothing new")+`</div>`;
   /* events: concerts + email events + Do317 */
   const evs=vis(D.events),shown=evAll?evs:evs.slice(0,10);
   const evRow=e=>{const d=fmtD(e),meta=`<div class="m">${esc(e.venue||"")} <span class="t">${esc(e.source)}</span></div>`;

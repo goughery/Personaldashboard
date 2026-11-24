@@ -183,6 +183,7 @@ def build_demo():
     b = lambda t, f, s="", **k: dict({"id": "id" + str(abs(hash(t))), "addr": f.lower().replace(" ", "") + "@example.com", "title": t, "from": f, "url": "#", "snippet": s, "ts": now - 3600, "body": "Full message text appears here when you expand an item.\n\nSecond paragraph."}, **k)
     iso = lambda n: (d + dt.timedelta(days=n)).isoformat()
     art = lambda t, src, s, **k: dict({"title": t, "source": src, "summary": s, "text": s + "\n\n" + s * 3, "url": "#", "ts": now - 7200}, **k)
+    mid = time.mktime(d.timetuple())
     out["notes"] = ["Demo data"]
     out["calendar"] = [{"title": "Dentist", "start": iso(1) + "T09:00:00-05:00", "end": iso(1) + "T10:00:00-05:00", "allDay": False, "cal": "Personal", "color": "#4285f4", "url": "#", "loc": ""},
            {"title": "Heather's birthday", "start": iso(5), "end": iso(6), "allDay": True, "cal": "Family", "color": "#e67c73", "url": "#", "loc": ""},
@@ -190,8 +191,8 @@ def build_demo():
     out["repo"] = "demo/demo"
     out["read"] = {
         "brew": [b("Today's Morning Brew", "Morning Brew", "Markets, tech and more", ai="• Markets steadied after a volatile week.\n• A new chip plant was announced in Ohio.\n• Three tips for a better morning.", html="<h2>Happy Friday</h2><p>Real <a href=\"https://example.com\">newsletter</a> layout.</p><script>alert(1)</script>")],
-        "world": [art("Investigation: how a small fund moved millions", "ProPublica", "A long investigation.", ai="• A small fund routed millions through shell companies.\n• Regulators were warned twice and did not act.\n• The fund says it followed the rules."), art("Talks resume in Geneva", "BBC World", "Diplomats met on Friday.")],
-        "local": [art("City council approves downtown plan", "Mirror Indy", "The vote was 6 to 3.")],
+        "world": [art("Investigation: how a small fund moved millions", "ProPublica", "A long investigation.", ts=now - 600, ai="• A small fund routed millions through shell companies.\n• Regulators were warned twice and did not act.\n• The fund says it followed the rules."), art("Talks resume in Geneva", "BBC World", "Diplomats met on Friday.", ts=mid - 5 * 3600)],
+        "local": [art("City council approves downtown plan", "Mirror Indy", "The vote was 6 to 3.", ts=mid - 3 * 86400 - 3600)],
         "restaurants": [art("New pizza spot opens on Mass Ave", "Indianapolis Monthly", "Wood-fired and walkable.")],
         "baby": [b("Your baby this week: fingernails and hiccups", "BabyCenter")]}
     out["races"] = [{"title": "Monument Mile 5K", "date": iso(20), "where": "Indianapolis, IN", "events": ["5K", "Kids run"], "url": "#", "source": "RunSignup"},
